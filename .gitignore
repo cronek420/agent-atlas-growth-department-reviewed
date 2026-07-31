@@ -1,0 +1,217 @@
+# .gitignore — agent-atlas-growth-department
+#
+# Owner: Repository Architect (Phase 01). Run ID phase-01-2026-07-28-a.
+# Purpose: guarantee the Phase 01 pass condition "No secrets committed," and keep
+# the repository clean on Windows.
+#
+# Fail-closed principle: when it is undecided whether a class of file may be
+# tracked, exclude it now and narrow the rule later by an owner decision recorded
+# in DECISIONS.md. Widening this file is a boundary change — see
+# docs/PROJECT_BOUNDARIES.md § "How to change a boundary".
+#
+# Most rules below are pre-emptive: Phase 01 produces Markdown only. Code,
+# schemas, and adapters arrive in Phases 04, 13, and 16.
+
+
+# ---------------------------------------------------------------------------
+# 1. Secrets — never commit, no exceptions
+# ---------------------------------------------------------------------------
+# Per user-guide/USER_INSTRUCTIONS.md: .env is for local development, .env.example
+# holds placeholder variable names only, Google Secret Manager holds production
+# secrets. No credential of any kind belongs in this repository.
+
+# NOTE: Git only treats `#` as a comment at the START of a line. Every comment in
+# this file is therefore on its own line — a trailing `#` would become part of
+# the pattern and silently break the rule.
+
+.env
+.env.*
+# .env.example is the ONLY .env-family file that is tracked: placeholder
+# variable names, never real values.
+!.env.example
+
+# Private keys and certificate bundles
+*.key
+*.pem
+*.p12
+*.pfx
+*.jks
+*.keystore
+
+# Google / OAuth credential files, by their conventional filenames. Phases 05,
+# 16, 17, and 18 anticipate Google and third-party API access; none is connected
+# today (docs/PROJECT_BOUNDARIES.md § "External system boundaries"), so these
+# rules exist before the files could.
+service-account*.json
+client_secret*.json
+credentials.json
+token.json
+*-credentials.json
+*_credentials.json
+.gcloud/
+gha-creds-*.json
+
+# Catch-all secret directories
+secrets/
+.secrets/
+*.secret
+
+
+# ---------------------------------------------------------------------------
+# 2. Harness / machine-local configuration
+# ---------------------------------------------------------------------------
+# Per D-032. .claude/settings.local.json records per-machine Claude Code
+# permission allowances. It is harness configuration, not project work — in Phase
+# 00 a subagent wrote it outside its assigned scope and it had to be disclosed in
+# the gate report (findings.md F-00-09). Ignore that one file only.
+#
+# Do NOT ignore all of .claude/ — project-level agent configuration that later
+# phases may add belongs under version control.
+.claude/settings.local.json
+.claude/*.local.json
+
+
+# ---------------------------------------------------------------------------
+# 3. Local data that must never sync
+# ---------------------------------------------------------------------------
+# Per D-033. Q-009 (data-privacy handling for lead/contact data) is UNRESOLVED — no
+# retention, storage, or deletion rules exist. Because the answer is unknown,
+# this project fails closed and excludes any private data directory PRE-EMPTIVELY,
+# before Phase 04 defines a lead schema and before Phase 17 could collect
+# anything. This exclusion is not a substitute for the missing policy: no
+# lead, contact, or personal data may be collected or stored at all until Q-009
+# is resolved (docs/PROJECT_BOUNDARIES.md § "Data boundaries").
+data/private/
+data/leads/
+data/contacts/
+*.leads.csv
+*.contacts.csv
+
+
+# ---------------------------------------------------------------------------
+# 4. Archives — deliberately NOT blanket-ignored
+# ---------------------------------------------------------------------------
+# There is intentionally no `*.zip` rule in this file.
+# agent-atlas-growth-department_build-package_draft.zip is the provenance
+# artifact for the entire build package and MUST stay tracked so the original
+# package is recoverable. Decided by the Phase 01 Owner and recorded as D-031.
+# If a future phase needs to exclude generated archives, exclude them by specific
+# path or directory — do not add a blanket `*.zip`.
+
+
+# ---------------------------------------------------------------------------
+# 5. Windows / OS cruft
+# ---------------------------------------------------------------------------
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+desktop.ini
+$RECYCLE.BIN/
+# Windows shortcuts embed machine-specific absolute paths.
+*.lnk
+*.stackdump
+# macOS cruft, in case the repository is ever cloned there.
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+
+# ---------------------------------------------------------------------------
+# 6. Editors and IDEs
+# ---------------------------------------------------------------------------
+# VS Code / Antigravity: exclude machine-local workspace state, keep the shared
+# extension recommendation list so a new clone gets the same tooling prompt.
+.vscode/*
+!.vscode/extensions.json
+
+# JetBrains project state.
+.idea/
+*.iml
+*.sublime-workspace
+*.sublime-project
+# vim swap/backup files.
+*.swp
+*.swo
+*~
+# VS Code "Local History" extension — snapshots of every save, including of files
+# that may hold secrets before they are cleaned up.
+.history/
+
+
+# ---------------------------------------------------------------------------
+# 7. Runtime, dependencies, and build output (pre-emptive)
+# ---------------------------------------------------------------------------
+# Node — Phase 16 adds src/adapters/; publishing adapters are the first source code.
+node_modules/
+dist/
+build/
+out/
+.next/
+.nuxt/
+.cache/
+.parcel-cache/
+coverage/
+*.tsbuildinfo
+.npm/
+.yarn/
+.pnp.*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+*.egg-info/
+.eggs/
+.coverage
+.coverage.*
+htmlcov/
+
+# Terraform / infra state — state files routinely contain secrets in plain text
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+
+
+# ---------------------------------------------------------------------------
+# 8. Logs, temporary and scratch files
+# ---------------------------------------------------------------------------
+# The phase checklist requires temporary files to be kept separate from
+# deliverables. Throwaway work belongs in the OS temp/scratchpad location, not
+# in the repository — these rules are the backstop, not the policy.
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pip-log.txt
+tmp/
+temp/
+.tmp/
+scratch/
+scratchpad/
+*.tmp
+*.bak
+*.orig
+*.rej
+
+
+# ---------------------------------------------------------------------------
+# 9. Not ignored, stated explicitly so nobody adds a rule later
+# ---------------------------------------------------------------------------
+# Tracked on purpose:
+#   - agent-atlas-growth-department_build-package_draft.zip  (provenance artifact)
+#   - .env.example                                           (placeholder names only)
+#   - agent_runs/                                            (phase evidence and handoffs — the audit trail)
+#   - .claude/ except settings.local.json                    (project agent config)
+#   - all governance Markdown at the repository root

@@ -1,0 +1,43 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(unzip -l agent-atlas-growth-department_build-package_draft.zip)",
+      "Bash(powershell -Command \"Get-ChildItem 'C:\\\\Users\\\\crone\\\\Projects\\\\agent-atlas-growth-department' -Filter '*.md' | Select-Object Name\")",
+      "Bash(awk -F'|' '/^\\\\| D-[0-9]/ {gsub\\(/^[ \\\\t]+|[ \\\\t]+$/,\"\",$5\\); print \"  \" $2 \" -> [\" $5 \"]\"}' DECISIONS.md)",
+      "Bash(awk -F'|' '/^\\\\| D-[0-9]/ {gsub\\(/^[ \\\\t]+|[ \\\\t]+$/,\"\",$5\\); if \\($5 !~ /^\\(APPROVED|INFERRED|PROPOSED|UNRESOLVED|BLOCKED|REJECTED|SUPERSEDED\\)$/\\) print \"  NONCONFORMING: \" $5}' DECISIONS.md)",
+      "Bash(sed -i 's/Absence of any KPI figures in task briefing or source documents/`INTAKE_RECORD.md` \"What the owner did NOT provide\"; no KPI figures in any source document/; s/MASTER_LINEAR_BUILD_PLAN.md Phase 05; no Drive information in task briefing/`MASTER_LINEAR_BUILD_PLAN.md` Phase 05; `INTAKE_RECORD.md` \"What the owner did NOT provide\"/; s/No account inventory provided in task briefing or source documents/`INTAKE_RECORD.md` \"What the owner did NOT provide\"; no account inventory in any source document/; s/No brand asset source provided in task briefing or source documents/`INTAKE_RECORD.md` \"What the owner did NOT provide\"; no brand asset source in any source document/' DECISIONS.md)",
+      "Bash(sed -i 's/Per the task briefing'\"'\"'s explicit instruction, these two items must NOT be recorded as confirmed non-goals./Non-selection is not rejection — it is simply undecided. These two items must NOT be recorded as confirmed non-goals; see `INTAKE_RECORD.md` Q4 for the verbatim intake record./' NON_GOALS.md)",
+      "PowerShell(git -C \"C:\\\\Users\\\\crone\\\\Projects\\\\agent-atlas-growth-department\" status 2>&1)",
+      "PowerShell(git -C \"C:\\\\Users\\\\crone\\\\Projects\\\\agent-atlas-growth-department\" rev-parse --show-toplevel 2>&1)",
+      "Bash(git check-ignore *)",
+      "Bash(echo \"exit=$?\")",
+      "PowerShell(py --version 2>&1)",
+      "PowerShell(pip --version 2>&1)",
+      "PowerShell(Get-CimInstance Win32_LogicalDisk -Filter \"DeviceID='C:'\" | Select-Object DeviceID, @{N='FreeGB';E={[math]::Round\\($_.FreeSpace/1GB,2\\)}}, @{N='SizeGB';E={[math]::Round\\($_.Size/1GB,2\\)}})",
+      "PowerShell(Get-Command pwsh -ErrorAction SilentlyContinue)",
+      "PowerShell(Get-Command gcloud -ErrorAction SilentlyContinue)",
+      "PowerShell(Get-Command docker -ErrorAction SilentlyContinue)",
+      "Bash(git --version)",
+      "Bash(echo \"check-ignore-exit=$?\")",
+      "Bash(git symbolic-ref *)",
+      "Bash(cd \"C:/Users/crone/Projects/agent-atlas-growth-department\" && grep -oE '^\\\\| \\(D-[0-9]+[a-z]?\\) \\\\| 2026-[0-9-]+ \\\\|' DECISIONS.md | grep -oE 'D-[0-9]+[a-z]?' | sort -u > /tmp/def_D_strict; echo \"strict register rows: $\\(wc -l < /tmp/def_D_strict\\)\"; cat /tmp/def_D_strict | tr '\\\\n' ' '; echo; echo \"--- D-ids I cite that are NOT strict register rows ---\"; grep -oE '\\\\bD-[0-9]+[a-z]?\\\\b' .gitignore CLAUDE.md MASTER_PLAN.md docs/PROJECT_BOUNDARIES.md | cut -d: -f2 | sort -u > /tmp/ref_D; comm -23 /tmp/ref_D /tmp/def_D_strict; echo \"--- end ---\")",
+      "Bash(bash /tmp/idcheck.sh)",
+      "Bash(grep -nE 'sk_\\(live|test\\)|pk_live|AIza|ghp_|gho_|xox[baprs]-|-----BEGIN|[A-Za-z0-9_/+=]{32,}' .env.example)",
+      "Bash(echo \"scan-exit=$? \\(1 = no matches\\)\")",
+      "Bash(echo \"checkignore-exit=$? \\(1 = NOT ignored, correct\\)\")",
+      "Bash(python \"C:/Users/crone/AppData/Local/Temp/claude/C--Users-crone-Projects-agent-atlas-growth-department/bb0f6fe1-c7fe-4bb8-8501-84c711047774/scratchpad/quotecheck.py\")",
+      "Bash(echo \"quiet-mode-exit=$? \\(0=ignored, 1=NOT ignored\\)\")",
+      "Bash(python -c ' *)",
+      "Bash(awk '{print $2}')",
+      "Bash(grep -cE 'AKIA[0-9A-Z]{16}|BEGIN [A-Z ]*PRIVATE KEY|gh[pousr]_[A-Za-z0-9]{20,}|AIza[0-9A-Za-z_-]{30,}' agent_runs/phase-01/handoffs/HANDOFF_REPOSITORY_ARCHITECT.md)",
+      "Bash(git commit *)",
+      "Bash(npm --version)",
+      "Bash(gh --version)",
+      "Bash(pip --version)",
+      "Bash(code --version)",
+      "Bash(pwsh --version)",
+      "Bash(gcloud --version)",
+      "Bash(docker --version)"
+    ]
+  }
+}

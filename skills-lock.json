@@ -1,0 +1,257 @@
+{
+  "version": 1,
+  "skills": {
+    "api-patterns": {
+      "source": "https://github.com/sickn33/antigravity-awesome-skills",
+      "sourceType": "vendored",
+      "sourceCommit": "2917fd235da85818f1f6ddd9326fea823464a6e8",
+      "sourcePath": "skills/api-patterns",
+      "computedHash": "b0101a266636696609b83b98207b401557731f958738a9d9fe7501df05579644"
+    },
+    "api-security-best-practices": {
+      "source": "https://github.com/sickn33/antigravity-awesome-skills",
+      "sourceType": "vendored",
+      "sourceCommit": "2917fd235da85818f1f6ddd9326fea823464a6e8",
+      "sourcePath": "skills/api-security-best-practices",
+      "computedHash": "9b406eee375a2efb3d6339ea18d7ffe2e783496ccd43490ea7752a353032b2d5"
+    },
+    "cc-skill-security-review": {
+      "source": "https://github.com/sickn33/antigravity-awesome-skills",
+      "sourceType": "vendored",
+      "sourceCommit": "2917fd235da85818f1f6ddd9326fea823464a6e8",
+      "sourcePath": "skills/cc-skill-security-review",
+      "computedHash": "c6207b067998c9e1469a974798204087d6362bf16d8144514601f06d7085e68e"
+    },
+    "code-review-checklist": {
+      "source": "https://github.com/sickn33/antigravity-awesome-skills",
+      "sourceType": "vendored",
+      "sourceCommit": "2917fd235da85818f1f6ddd9326fea823464a6e8",
+      "sourcePath": "skills/code-review-checklist",
+      "computedHash": "abfb2e4928f802c0f64f96f6ce31231d29645b9dafd3a87d5bd4bc0d32916ecb"
+    },
+    "concise-planning": {
+      "source": "https://github.com/sickn33/antigravity-awesome-skills",
+      "sourceType": "vendored",
+      "sourceCommit": "2917fd235da85818f1f6ddd9326fea823464a6e8",
+      "sourcePath": "skills/concise-planning",
+      "computedHash": "0325cd608697e285c4688102eab8100b1d8b6929cab342e4f3a049ee0f97ab78"
+    },
+    "connect-recommend": {
+      "source": "docs.stripe.com",
+      "sourceType": "well-known",
+      "computedHash": "b8abf90cf095a94c2b3973ceb6739da82c1d7dc782ef9340bebfe2a09d54365c"
+    },
+    "copywriting": {
+      "source": "https://github.com/sickn33/antigravity-awesome-skills",
+      "sourceType": "vendored",
+      "sourceCommit": "2917fd235da85818f1f6ddd9326fea823464a6e8",
+      "sourcePath": "skills/copywriting",
+      "computedHash": "ef29280c7c9151fce817479dc84b27e72a003c7fe879f30bf8689f1284b2f30b"
+    },
+    "database-design": {
+      "source": "https://github.com/sickn33/antigravity-awesome-skills",
+      "sourceType": "vendored",
+      "sourceCommit": "2917fd235da85818f1f6ddd9326fea823464a6e8",
+      "sourcePath": "skills/database-design",
+      "computedHash": "9bea3b6666835896c8f3bd0facc64662a461f7b12145475e2cce8a6997a45dfc"
+    },
+    "email-sequence": {
+      "source": "https://github.com/sickn33/antigravity-awesome-skills",
+      "sourceType": "vendored",
+      "sourceCommit": "2917fd235da85818f1f6ddd9326fea823464a6e8",
+      "sourcePath": "skills/email-sequence",
+      "computedHash": "63e0a4940df5da723be26823b0cdd0492ac030bf813057ea64fa00e55014d0f9"
+    },
+    "finishing-a-development-branch": {
+      "source": "https://github.com/sickn33/antigravity-awesome-skills",
+      "sourceType": "vendored",
+      "sourceCommit": "2917fd235da85818f1f6ddd9326fea823464a6e8",
+      "sourcePath": "skills/finishing-a-development-branch",
+      "computedHash": "7e9bf2c86310276c9151a3774ac0c03ed8b648feb72b9873aca6bce2f8992194"
+    },
+    "git-pushing": {
+      "source": "https://github.com/sickn33/antigravity-awesome-skills",
+      "sourceType": "vendored",
+      "sourceCommit": "2917fd235da85818f1f6ddd9326fea823464a6e8",
+      "sourcePath": "skills/git-pushing",
+      "computedHash": "8e212d59ffb77dca6794d5eca2dd8ab559d2d38f9cf5471f139e3991c074401b"
+    },
+    "launch-strategy": {
+      "source": "https://github.com/sickn33/antigravity-awesome-skills",
+      "sourceType": "vendored",
+      "sourceCommit": "2917fd235da85818f1f6ddd9326fea823464a6e8",
+      "sourcePath": "skills/launch-strategy",
+      "computedHash": "193b77b39d3dfd148f53eed284ffb408c886b75ac72b220b3ade5641a7abadfd"
+    },
+    "lint-and-validate": {
+      "source": "https://github.com/sickn33/antigravity-awesome-skills",
+      "sourceType": "vendored",
+      "sourceCommit": "2917fd235da85818f1f6ddd9326fea823464a6e8",
+      "sourcePath": "skills/lint-and-validate",
+      "computedHash": "23baa6b0bdf9b604b648006df5a5bababdc74650aab04485bc56d8fa1b9e4b55"
+    },
+    "nextjs-best-practices": {
+      "source": "https://github.com/sickn33/antigravity-awesome-skills",
+      "sourceType": "vendored",
+      "sourceCommit": "2917fd235da85818f1f6ddd9326fea823464a6e8",
+      "sourcePath": "skills/nextjs-best-practices",
+      "computedHash": "8463910ef0dac4c001a3796453f48420e8e3c82d63363e96169e855d4267290c"
+    },
+    "nextjs-supabase-auth": {
+      "source": "https://github.com/sickn33/antigravity-awesome-skills",
+      "sourceType": "vendored",
+      "sourceCommit": "2917fd235da85818f1f6ddd9326fea823464a6e8",
+      "sourcePath": "skills/nextjs-supabase-auth",
+      "computedHash": "0c17692541991693790027e47a4c96338afddac3e2861b353641a82bada57990"
+    },
+    "onboarding-cro": {
+      "source": "https://github.com/sickn33/antigravity-awesome-skills",
+      "sourceType": "vendored",
+      "sourceCommit": "2917fd235da85818f1f6ddd9326fea823464a6e8",
+      "sourcePath": "skills/onboarding-cro",
+      "computedHash": "2a28ccde509b54246a1351f8b66631a6d10ec4c98624678c5477dfef206e6cac"
+    },
+    "page-cro": {
+      "source": "https://github.com/sickn33/antigravity-awesome-skills",
+      "sourceType": "vendored",
+      "sourceCommit": "2917fd235da85818f1f6ddd9326fea823464a6e8",
+      "sourcePath": "skills/page-cro",
+      "computedHash": "f30b1e57d60760b8a9fb5a2fd2d4790b586e0989f6144c9b33aa0f378dbe148b"
+    },
+    "postgres-best-practices": {
+      "source": "https://github.com/sickn33/antigravity-awesome-skills",
+      "sourceType": "vendored",
+      "sourceCommit": "2917fd235da85818f1f6ddd9326fea823464a6e8",
+      "sourcePath": "skills/postgres-best-practices",
+      "computedHash": "faf75f15ac2d6c17a9851818f2c86e9eb96b75039780937a3a22bc52b66f9a64"
+    },
+    "pricing-strategy": {
+      "source": "https://github.com/sickn33/antigravity-awesome-skills",
+      "sourceType": "vendored",
+      "sourceCommit": "2917fd235da85818f1f6ddd9326fea823464a6e8",
+      "sourcePath": "skills/pricing-strategy",
+      "computedHash": "c64db5ed2a6ad4f3c961b6a7c69e468a3e463341ff0795196d5dd200087f811a"
+    },
+    "product-manager-toolkit": {
+      "source": "https://github.com/sickn33/antigravity-awesome-skills",
+      "sourceType": "vendored",
+      "sourceCommit": "2917fd235da85818f1f6ddd9326fea823464a6e8",
+      "sourcePath": "skills/product-manager-toolkit",
+      "computedHash": "e003858b2344692579248843bcc4e9a48860cb1dad088d1bbe6e81f9585d39d1"
+    },
+    "react-best-practices": {
+      "source": "https://github.com/sickn33/antigravity-awesome-skills",
+      "sourceType": "vendored",
+      "sourceCommit": "2917fd235da85818f1f6ddd9326fea823464a6e8",
+      "sourcePath": "skills/react-best-practices",
+      "computedHash": "932725c9765e2c03cf251380acf514b8d5d3fdc03d42d955dc60685c975cf6b8"
+    },
+    "seo-fundamentals": {
+      "source": "https://github.com/sickn33/antigravity-awesome-skills",
+      "sourceType": "vendored",
+      "sourceCommit": "2917fd235da85818f1f6ddd9326fea823464a6e8",
+      "sourcePath": "skills/seo-fundamentals",
+      "computedHash": "86bc4aa9795c9a4f5e5972454f062b760fbaa7f8436f0600aca7fe2eae275fd4"
+    },
+    "stripe-best-practices": {
+      "source": "docs.stripe.com",
+      "sourceType": "well-known",
+      "computedHash": "8a27483a9cfdeaa83f45cd489d3d7f5fd7b7690f7d7fba4a944b92a4535bf73c"
+    },
+    "stripe-directory": {
+      "source": "docs.stripe.com",
+      "sourceType": "well-known",
+      "computedHash": "58d8c458beaa92877ed2f0a622af65a0a91e2804efcc4188ac87a35780015361"
+    },
+    "stripe-docs": {
+      "source": "docs.stripe.com",
+      "sourceType": "well-known",
+      "computedHash": "7f8b47057d65cdc55c60ed870bf6ad508907e5d981fca77781b4964de54d985f"
+    },
+    "stripe-projects": {
+      "source": "docs.stripe.com",
+      "sourceType": "well-known",
+      "computedHash": "a53a28a78e6561d15dd1aadaf552217bfa2f9dbb2ef57aa9cd7a9caf93ef5eed"
+    },
+    "supabase": {
+      "source": "supabase/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/supabase/SKILL.md",
+      "computedHash": "19fca56d93a6d212c6373ad921dcaeddf2ff13e3558e6bfd6e63acb063255f86"
+    },
+    "supabase-postgres-best-practices": {
+      "source": "supabase/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/supabase-postgres-best-practices/SKILL.md",
+      "computedHash": "768f9a7532780a72165f79c91d71a4bf82abd9ed31045238c2acb40322fc1d0a"
+    },
+    "systematic-debugging": {
+      "source": "https://github.com/sickn33/antigravity-awesome-skills",
+      "sourceType": "vendored",
+      "sourceCommit": "2917fd235da85818f1f6ddd9326fea823464a6e8",
+      "sourcePath": "skills/systematic-debugging",
+      "computedHash": "530855dfa2b10d5b9f92ac170fe41c5f8fbc4918957a564855b50a896ca625a2"
+    },
+    "tailwind-patterns": {
+      "source": "https://github.com/sickn33/antigravity-awesome-skills",
+      "sourceType": "vendored",
+      "sourceCommit": "2917fd235da85818f1f6ddd9326fea823464a6e8",
+      "sourcePath": "skills/tailwind-patterns",
+      "computedHash": "e88444273a8b0d996e26f63a8c316ab0c195a67c58360cfc435655ae061e6df5"
+    },
+    "testing-patterns": {
+      "source": "https://github.com/sickn33/antigravity-awesome-skills",
+      "sourceType": "vendored",
+      "sourceCommit": "2917fd235da85818f1f6ddd9326fea823464a6e8",
+      "sourcePath": "skills/testing-patterns",
+      "computedHash": "4fcf14e890b66237bc144ae08df538664002314b6eae01ad89f8a14f30962185"
+    },
+    "typescript-expert": {
+      "source": "https://github.com/sickn33/antigravity-awesome-skills",
+      "sourceType": "vendored",
+      "sourceCommit": "2917fd235da85818f1f6ddd9326fea823464a6e8",
+      "sourcePath": "skills/typescript-expert",
+      "computedHash": "ddfb1042e95aff6cbc44484bf4f43c5840ace23b4a72723a3c64a6f6ccd4811f"
+    },
+    "upgrade-stripe": {
+      "source": "docs.stripe.com",
+      "sourceType": "well-known",
+      "computedHash": "46bb3c16878f93b953ed901b950686d64f04f90c67400bf31e1a0d7790d889df"
+    },
+    "using-git-worktrees": {
+      "source": "https://github.com/sickn33/antigravity-awesome-skills",
+      "sourceType": "vendored",
+      "sourceCommit": "2917fd235da85818f1f6ddd9326fea823464a6e8",
+      "sourcePath": "skills/using-git-worktrees",
+      "computedHash": "b9f4a80b4369977e07b6f9b75618c2aa56687ef539442bf439f3ee976d1109c5"
+    },
+    "vercel-deployment": {
+      "source": "https://github.com/sickn33/antigravity-awesome-skills",
+      "sourceType": "vendored",
+      "sourceCommit": "2917fd235da85818f1f6ddd9326fea823464a6e8",
+      "sourcePath": "skills/vercel-deployment",
+      "computedHash": "f853d964dffb5ad8daf4dce7b04794eef2e921661b3bbbae6d48834921f33247"
+    },
+    "verification-before-completion": {
+      "source": "https://github.com/sickn33/antigravity-awesome-skills",
+      "sourceType": "vendored",
+      "sourceCommit": "2917fd235da85818f1f6ddd9326fea823464a6e8",
+      "sourcePath": "skills/verification-before-completion",
+      "computedHash": "c35ac975d145f74d9f3668c1b035a3754d3c0f4edb491cc80a6a0265cfdf7749"
+    },
+    "web-design-guidelines": {
+      "source": "https://github.com/sickn33/antigravity-awesome-skills",
+      "sourceType": "vendored",
+      "sourceCommit": "2917fd235da85818f1f6ddd9326fea823464a6e8",
+      "sourcePath": "skills/web-design-guidelines",
+      "computedHash": "cb9648c402ebf969c85b2fa6f4dbfa1cb9d567472bbb8c5c45bec96ce902fbfe"
+    },
+    "web-performance-optimization": {
+      "source": "https://github.com/sickn33/antigravity-awesome-skills",
+      "sourceType": "vendored",
+      "sourceCommit": "2917fd235da85818f1f6ddd9326fea823464a6e8",
+      "sourcePath": "skills/web-performance-optimization",
+      "computedHash": "5b1ab8748244664803ce5cc2c8afe418c6b2584bd88255dae133bdb7b8213425"
+    }
+  }
+}
