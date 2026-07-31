@@ -1,11 +1,28 @@
 # Current Phase
 
-**Phase number:** 03
-**Phase name:** Governance, Security, Approval, and Autonomy Policies
-**Status:** ✅ **GATE DECISION RECORDED — PASS** (Project Owner, 2026-07-30)
-**Last updated:** 2026-07-30
+**Phase number:** 04
+**Phase name:** Data Contracts and State Model
+**Status:** ✅ **GATE DECISION RECORDED — PASS** (Project Owner, 2026-07-31)
+**Last updated:** 2026-07-31
 
 ## ✅ Gate decision — PASS
+
+**Recorded by the Project Owner on 2026-07-31**, accepting the gate report's own recommendation (unlike Phase 01/03, this was not an override of a stricter recommendation — the report already recommended PASS, having fixed every finding the independent review raised before it was finalized).
+
+**What this accepts, stated plainly:** the gate report's one disclosed limitation — no fresh independent-review pass re-read the post-fix state; the 8 findings (2 High, 5 Medium/Low, 0 Critical) were fixed and mechanically re-verified (same tools, re-run, matching output: 20/20 fixture records, 5/5 red mutations), but not adversarially re-reviewed by someone with no prior context. Recorded as accepted, not silently erased.
+
+**Phase 04's work — evidence:** all 8 schemas (`product`, `brand`, `content`, `campaign`, `experiment`, `alert`, `lead`, `approval`), `architecture/DATA_CONTRACTS.md`, `architecture/STATE_MACHINE.md`, 8 fixture files (20 records), `tools/schema_validate.py`. `Q-016` resolved (`D-052`); `Q-009` left exactly as open as found — `lead.schema.json` is structural-only, `DENY` until `Q-009` resolves and a non-Git storage substrate is decided. Independent review's original recommendation was CONDITIONAL PASS (rubric 4.17, Permissions/Testing both below the `D-028` floor); post-remediation self-score 4.42, both categories now ≥4, with the specific defect that drove each original score named and fixed rather than the score simply being raised. Full report: `agent_runs/phase-04/PHASE_GATE_REPORT.md`; full review: `agent_runs/phase-04/REVIEW_REPORT.md`.
+
+**Phase 05 may be started by the owner.** Nothing has been started automatically (`D-007`). **`Q-004` (Google Drive folder access) remains `BLOCKED`** — the project's only such item — and gates real execution of Phase 05 regardless of this gate's outcome. Not yet committed or pushed — that remains an owner-timed action per this project's practice, though nothing here blocks it.
+
+---
+
+# Historical record — Phase 03 and earlier, preserved below
+
+**This section is retained for the audit trail, not rewritten.** Where it disagrees with the
+Phase 04 status above, believe the section above.
+
+## ✅ Gate decision — PASS (Phase 03)
 
 **Recorded by the Project Owner on 2026-07-30**, in this session, against the gate report's own recommendation of CONDITIONAL PASS. Precedent for an owner overriding a stricter recommendation: Phase 01, where the owner was shown CONDITIONAL PASS and recorded an unconditional PASS — the owner's prerogative under `D-007`, recorded as given, not re-argued.
 

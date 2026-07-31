@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rdbc.internal/schemas/content.schema.json",
+  "title": "Content",
+  "description": "A single piece of marketing content (e.g. a post, a caption, an article draft) produced for Rough Draft Builders Club (RDBC). This is a schema *contract* only (architecture/DATA_CONTRACTS.md §8); no runtime enforces it yet (src/ does not exist before Phase 16) — Phase 13 (\"Content Production\") produces real instances against this shape. `PUBLISHED` is a structurally-defined value of `status` that this project cannot currently reach: PUBLISHING_POLICY.md currently resolves all publishing to `DENY` (policy/action_registry.json ACT-P01, ACT-P04, ACT-P05), and no capability may skip a stage of the D-010 maturity ladder (every production-facing capability is DISABLED as of this writing, CLAUDE.md §13). This schema defines the shape a published-content record would have; it grants no permission to reach that state. `approval_id` links this record to the approval workflow (APPROVAL_POLICY.md §2; architecture/DATA_CONTRACTS.md §6) rather than embedding approval states inside this schema's own `status` enum. See architecture/STATE_MACHINE.md for this entity's documented lifecycle transitions between `status` values.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "schema_version",
+    "idempotency_key",
+    "status",
+    "version",
+    "created_at",
+    "updated_at",
+    "created_by_role",
+    "title",
+    "body",
+    "approval_id"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Server-assigned identity. Never client-supplied, never reused. Shared envelope field, architecture/DATA_CONTRACTS.md §2.1."
+    },
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "The exact semver version of content.schema.json this record was written against. architecture/DATA_CONTRACTS.md §2.1, §3."
+    },
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Caller-chosen deduplication key; a create request whose idempotency_key matches an existing content record returns the existing record rather than creating a duplicate. architecture/DATA_CONTRACTS.md §2.1, §4."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["DRAFT", "READY_FOR_REVIEW", "SCHEDULED", "PUBLISHED", "ARCHIVED"],
+      "description": "This content item's own production/publishing lifecycle status — distinct from the linked approval record's status (`approval_id` below; see architecture/DATA_CONTRACTS.md §6, which requires these to stay two separate, linked concepts rather than one merged enum). Enum values and reasoning are this schema's own design choice (Data Architect, Phase 04); transitions between them are documented separately in architecture/STATE_MACHINE.md, which cites this exact enum. DRAFT: the content is being authored and has not been submitted for review. READY_FOR_REVIEW: authoring is complete and the content is ready for an approval request to be submitted against it, per APPROVAL_POLICY.md §4. SCHEDULED: the content has been approved and queued for a future publish action — structurally defined even though no scheduling capability is authorized today (ACT-P04 is DENY). PUBLISHED: the content has been published to its intended audience. As stated in this schema's top-level description, this value cannot currently be reached by any lawful path in this project — it is defined for shape completeness, not as a reachable state today. ARCHIVED: the content is no longer active (whether it was ever published or not) and is retained for record-keeping only."
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Optimistic-concurrency counter, starts at 1. architecture/DATA_CONTRACTS.md §2.1."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 / RFC 3339. Set once, never mutated. architecture/DATA_CONTRACTS.md §2.1."
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 / RFC 3339. Set on every accepted mutation; must be >= created_at. architecture/DATA_CONTRACTS.md §2.1."
+    },
+    "created_by_role": {
+      "type": "string",
+      "enum": [
+        "PROJECT_OWNER",
+        "PHASE_OWNER",
+        "SPECIALIST",
+        "INDEPENDENT_REVIEWER",
+        "GOVERNANCE_AUDITOR",
+        "RUNTIME_AGENT"
+      ],
+      "description": "Which role created this record — a closed role token from policy/action_registry.json's `roles` array, never a person's name or an invented role. architecture/DATA_CONTRACTS.md §2.1."
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "description": "A short structural label identifying this content item internally (e.g. for a queue or index) — not itself the published copy."
+    },
+    "body": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The content's own text/copy. Any claim, testimonial, price, discount, or controversial-topic statement this text contains falls under the corresponding gated category (CLAUDE.md §4) the moment publication is attempted — storing text here is authoring inside the gates (ACT-P02, ALLOW), never itself a publish action (ACT-P01, DENY)."
+    },
+    "approval_id": {
+      "type": ["string", "null"],
+      "format": "uuid",
+      "description": "References the approval record (APPROVAL_POLICY.md §2; schemas/approval.schema.json) governing this content item, if any request has been submitted. Null until an approval request exists for this artifact. Per architecture/DATA_CONTRACTS.md §6, this content record composes with at most one active approval record by reference — it never embeds the approval workflow's own states inside this schema's `status` enum above."
+    }
+  }
+}

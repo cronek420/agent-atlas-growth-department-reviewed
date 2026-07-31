@@ -7,12 +7,35 @@
 | 00 | Decision Lock and Scope Control | ✅ Complete | **PASS** — recorded by owner 2026-07-28, no conditions |
 | 01 | Workspace, Repository, and Project Memory | ✅ Complete | **PASS** — recorded by owner 2026-07-29, no conditions |
 | 02 | Capability Registry and Skill Foundation | ✅ Complete 2026-07-29 | **CONDITIONAL PASS** — recorded by owner 2026-07-29. PR #1 merged 2026-07-30. Four review findings still unremediated (`R-24`, `OPEN`) |
-| 03 | Governance, Security, Approval, and Autonomy Policies | ✅ Complete 2026-07-30 (run `phase-03-2026-07-30-b`) | Gate report written; recommendation below. First attempt (`-a`) discarded uncommitted — built on a pre-merge branch, see `findings.md` F-03-01 |
-| 04–24 | — | Not started | — |
+| 03 | Governance, Security, Approval, and Autonomy Policies | ✅ Complete 2026-07-30 (run `phase-03-2026-07-30-b`) | **PASS** — recorded by owner 2026-07-30, an override of the gate report's own CONDITIONAL PASS recommendation |
+| 04 | Data Contracts and State Model | ✅ Complete 2026-07-31 (run `phase-04-2026-07-31-a`) | **PASS** — recorded by owner 2026-07-31, accepting the gate report's own recommendation |
+| 05–24 | — | Not started | — |
 
-No phase may auto-start the next (Architecture Rule 7 / `D-007`). **Phase 04 has not been started.** A gate report recommends; only the Project Owner decides.
+No phase may auto-start the next (Architecture Rule 7 / `D-007`). **Phase 05 has not been started.** `Q-004` (Google Drive folder access) remains `BLOCKED` and gates real execution of Phase 05 regardless. A gate report recommends; only the Project Owner decides.
 
 **Post-gate (2026-07-29):** the Project Owner created the private GitHub remote (`D-030`). All commits are mirrored off-machine and **`R-19` is now `MITIGATED`** — the data-loss risk that was live through the entirety of Phases 00 and 01 is closed. Ten files asserting the old "local-only" state were reconciled in the same pass, deliberately applying the `F-01-09` lesson.
+
+---
+
+## Phase 04 — Data Contracts and State Model — 2026-07-31
+
+Run ID `phase-04-2026-07-31-a`. Phase owner: Atlas Orchestrator (Phase 04).
+
+Prerequisite: Phase 03 gate **PASS**, recorded by the Project Owner 2026-07-30. Before drafting, this session also initialized the local Git repository (`git init -b main`, baseline commit `3fb83a4`) and created/attached the private GitHub remote `cronek420/agent-atlas-growth-department-reviewed`, since neither existed in this working copy despite `CURRENT_PHASE.md` describing them — the discrepancy was investigated first (an existing public, unrelated-history repo of the same name was left untouched; a differently-named private repo was created instead, per the Project Owner's explicit choice) before any push.
+
+**`Q-016`** (where do Phase 04's fixtures live — left as this phase's own call) resolved first, as `D-052`: `schemas/fixtures/<entity>.fixture.json`, colocated with each schema. `architecture/DATA_CONTRACTS.md` written next (`D-053`) — the shared seven-field envelope, JSON Schema 2020-12, versioning/backward-compatibility policy, idempotency-key rule, and error shape every schema conforms to, written before any entity schema so four specialists could draft in parallel against one fixed contract rather than inventing four incompatible ones (the same T0-before-fan-out pattern Phase 03 used for `policy/POLICY_CONTRACT.md`).
+
+Two specialists ran genuinely in parallel (`F-00-07` discipline: neither read the other's assigned schemas): Data Architect (`product`, `brand`, `content`, `campaign`) and Analytics Engineer (`experiment`, `alert`, `lead`). The Analytics Engineer's first launch attempt failed on a transient harness authentication error before doing any work and was cleanly retried. `lead.schema.json` was built as a structural-only contract per `DATA_RETENTION_POLICY.md` §2.4 — real field names and types, but an inline notice that instantiating a real record is `DENY` (`ACT-W10`) until `Q-009` resolves and a non-Git storage substrate exists; `Q-009` itself was deliberately left exactly as open as it was found (no default retention/jurisdiction proposed — that would invent a fact under `D-047`/`D-008`).
+
+Workflow State Designer ran third, after both entity-schema specialists finished (genuine dependency, not arbitrary sequencing — it cites their actual `status` enum choices): `schemas/approval.schema.json` transcribes `APPROVAL_POLICY.md` §2's 10-state machine exactly, and additionally encodes Invariant 5 ("no agent role holds the `APPROVE` transition") as `allOf`/`if`/`then` conditionals restricting `decided_by_role`, not merely stating it in prose. Caught and fixed a real bug in its own first draft before handoff (`findings.md` F-04-02). `architecture/STATE_MACHINE.md` documents per-entity lifecycle transition tables for all seven entities plus the approval machine, citing rather than inventing.
+
+Phase owner then built `schemas/fixtures/*.fixture.json` (8 files, 19 records total, personal-data fields in `lead.fixture.json` using only placeholder/`.invalid`-domain values) and `tools/schema_validate.py` — the first script in `tools/` needing a third-party dependency (`jsonschema` 4.26.0, `pip install`ed and disclosed, `findings.md` F-04-01). Initial run: `python tools/schema_validate.py`: 8/8 schemas valid, 19/19 fixture records validate; `--selftest`: 4/4 red mutations caught, 0 missed.
+
+The Independent Reviewer's report (below) found two real, fixable gaps in `schemas/approval.schema.json` specifically: no fixture exercised the `DETERMINISTIC_CODE`-decided branch (Finding M-4), and the schema's `allOf` conditionals let `decided_at`/`requested_at` stay `null` even when `decided_by_role`/`requested_by_role` was asserted (Finding M-5, independently demonstrated by the reviewer constructing a passing record that should have failed). Both addressed post-review: added an `EXPIRED` fixture record (`decided_by_role: DETERMINISTIC_CODE`) and two new `allOf` conditionals requiring the timestamp fields to be non-null whenever their paired role field is asserted. Also fixed: `product.fixture.json`'s second record no longer points its `pricing_approval_id` at a still-`DRAFT` approval (L-1); a "nine values"/"11 states/edges match" miscount corrected in two places (M-2, M-3); a confusingly-worded invariant-count sentence in `STATE_MACHINE.md` reworded (L-2). Re-run after fixes: `python tools/schema_validate.py`: 8/8 schemas valid, **20/20** fixture records validate; `--selftest`: **5/5** red mutations caught, 0 missed (a fifth mutation added specifically to prove the M-5 fix, confirmed CAUGHT). `tools/idcheck.py` run against every changed file: 0 dangling `D-`/`Q-`/`R-`/`NG-`/`F-` citations. The phase owner's first pass under-scoped the target file list and reported only 5 missing-path lines; the Independent Reviewer re-ran it against the full set of files this phase actually touched and correctly found 18 raw lines / 6 distinct unique paths, every one pre-existing or an expected forward reference to this run's own not-yet-written gate report — none newly dangling because of this phase's work (corrected accounting: `findings.md` F-04-04, reviewer finding H-2).
+
+`D-052`, `D-053` recorded in `DECISIONS.md`; `Q-016` marked resolved in `OPEN_QUESTIONS.md`.
+
+Full detail: `agent_runs/phase-04/PHASE_GATE_REPORT.md`.
 
 ---
 

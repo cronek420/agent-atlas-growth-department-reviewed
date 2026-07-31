@@ -1,0 +1,268 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rdbc.internal/schemas/approval.schema.json",
+  "title": "Approval",
+  "description": "A single approval request/record tracking one gated artifact through the 10-state approval workflow. This schema TRANSCRIBES `APPROVAL_POLICY.md` §2 (itself reproduced from `policy/action_registry.json` → `state_machines.approval` and `policy/POLICY_CONTRACT.md` §6) — it does not define a competing state machine (`architecture/DATA_CONTRACTS.md` §6). This is a schema *contract* only (`architecture/DATA_CONTRACTS.md` §8); no runtime enforces it yet (`src/` does not exist before Phase 16, and the approval queue itself is a Phase 15 deliverable per `MASTER_PLAN.md`). Per Invariant 5 (`APPROVAL_POLICY.md` §3, `ACT-A01`): no agent role holds the `APPROVE` transition. This schema structurally reflects that constraint rather than merely asserting it in prose — see `decided_by_role` below, whose enum contains only `PROJECT_OWNER`, `PHASE_OWNER`, and `DETERMINISTIC_CODE`, and the `allOf`/`if`/`then` blocks at the bottom of this schema, which require `decided_by_role` to equal `PROJECT_OWNER` whenever `status` is `APPROVED`, `REJECTED`, `CHANGES_REQUESTED`, or `SUPERSEDED` (the four transitions `APPROVAL_POLICY.md` §2's table assigns to actor `PROJECT_OWNER`), and to equal `DETERMINISTIC_CODE` whenever `status` is `EXPIRED`, `EXECUTED`, or `VOIDED` (the three transitions the table assigns to actor `DETERMINISTIC_CODE`). No agent role (`PHASE_OWNER` excepted only for `WITHDRAWN`, which the table assigns to it) can ever satisfy these conditionals — this is a mechanical guardrail, not a substitute for the deterministic enforcement code Architecture Rule 3 (`D-003`) still assigns to a future phase. Two further conditionals (added 2026-07-31 after independent review Finding M-5 found the original draft let `decided_at`/`requested_at` stay `null` even when `decided_by_role`/`requested_by_role` was asserted) require `requested_at` to be non-null whenever `requested_by_role` is non-null, and `decided_at` to be non-null whenever `decided_by_role` is non-null — closing the gap between this description's claim that the two fields track together and what the schema actually checked.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "schema_version",
+    "idempotency_key",
+    "status",
+    "version",
+    "created_at",
+    "updated_at",
+    "created_by_role",
+    "gated_category",
+    "entity_type",
+    "entity_id",
+    "summary",
+    "effect_if_approved",
+    "reversal_cost",
+    "artifact_digest",
+    "requested_by_role",
+    "requested_at",
+    "decided_by_role",
+    "decided_at"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Server-assigned identity. Never client-supplied, never reused. Shared envelope field, architecture/DATA_CONTRACTS.md §2.1."
+    },
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "The exact semver version of approval.schema.json this record was written against. architecture/DATA_CONTRACTS.md §2.1, §3."
+    },
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Caller-chosen deduplication key; a create request whose idempotency_key matches an existing approval record returns the existing record rather than creating a duplicate. architecture/DATA_CONTRACTS.md §2.1, §4. Distinct from artifact_digest below: idempotency_key deduplicates the create request itself; artifact_digest binds the approval to the content it approves (Invariant 3)."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "PENDING_APPROVAL",
+        "APPROVED",
+        "CHANGES_REQUESTED",
+        "REJECTED",
+        "EXPIRED",
+        "WITHDRAWN",
+        "EXECUTED",
+        "SUPERSEDED",
+        "VOIDED"
+      ],
+      "description": "Exactly the 10 states defined by APPROVAL_POLICY.md §2, same order, no addition, omission, or rename (task_plan.md V-5). Initial state: DRAFT. Terminal states: REJECTED, EXPIRED, WITHDRAWN, EXECUTED, SUPERSEDED, VOIDED. This enum is not this schema's own design choice — unlike every other entity schema's `status` enum, it is a direct transcription of a governing document and may not be widened, narrowed, or reworded independently of APPROVAL_POLICY.md §2 (which itself may not be edited by any policy document, including itself, per that section's own header note). Full transition table and the five invariants governing motion between these states: architecture/STATE_MACHINE.md § 'The approval state machine', citing APPROVAL_POLICY.md §2–§3 verbatim."
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Optimistic-concurrency counter, starts at 1. architecture/DATA_CONTRACTS.md §2.1. Distinct from the approval workflow's own `status` progression — this counter increments on every accepted mutation to this record regardless of which state transition caused it."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 / RFC 3339. Set once, never mutated. architecture/DATA_CONTRACTS.md §2.1. Marks when this record entered DRAFT, which is not necessarily the same moment as requested_at (the submit transition) below."
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 / RFC 3339. Set on every accepted mutation; must be >= created_at. architecture/DATA_CONTRACTS.md §2.1."
+    },
+    "created_by_role": {
+      "type": "string",
+      "enum": [
+        "PROJECT_OWNER",
+        "PHASE_OWNER",
+        "SPECIALIST",
+        "INDEPENDENT_REVIEWER",
+        "GOVERNANCE_AUDITOR",
+        "RUNTIME_AGENT"
+      ],
+      "description": "Which role created (drafted) this approval record — a closed role token from policy/action_registry.json's `roles` array, never a person's name or an invented role. architecture/DATA_CONTRACTS.md §2.1. Distinct from requested_by_role and decided_by_role below: drafting a request is not the same act as submitting it (submit) or deciding it (owner_approves/owner_rejects/owner_requests_changes/owner_replaces/staleness_timer/execute_once/validity_window_elapsed/artifact_digest_mismatch), and APPROVAL_POLICY.md §2's transition table treats them as distinct actors on distinct edges."
+    },
+    "gated_category": {
+      "type": "string",
+      "enum": [
+        "GC-01",
+        "GC-02",
+        "GC-03",
+        "GC-04",
+        "GC-05",
+        "GC-06",
+        "GC-07",
+        "GC-08",
+        "GC-09"
+      ],
+      "description": "Which of the nine human-approval-gated categories this approval concerns (CLAUDE.md §4; APPROVAL_POLICY.md §1; registry IDs GC-01..GC-09). GC-01 claims, GC-02 pricing, GC-03 discounts, GC-04 testimonials, GC-05 direct outreach, GC-06 complaints, GC-07 controversial topics, GC-08 spending, GC-09 paid advertising. APPROVAL_POLICY.md §4.2 requires every approval request packet to state which category applies and why; `summary` below is where the 'why' is recorded in this schema. Exactly one category per approval record — APPROVAL_POLICY.md §5 ('Batching may never... apply to different gated categories as if they were one decision') forbids treating a mixed-category batch as a single decision, which this schema honors by giving each approval record exactly one category, never an array."
+    },
+    "entity_type": {
+      "type": ["string", "null"],
+      "enum": [
+        "product",
+        "brand",
+        "content",
+        "campaign",
+        "experiment",
+        "alert",
+        "lead",
+        null
+      ],
+      "description": "Which schema this approval concerns, if it concerns a record instantiated from one of this project's seven entity schemas. Per architecture/DATA_CONTRACTS.md §6, only content.schema.json and campaign.schema.json carry a back-reference to an approval record via their own `approval_id` field, and experiment.schema.json does the same via its own `approval_id`; product.schema.json carries an equivalent back-reference via `pricing_approval_id` specifically (not a generic `approval_id`). brand.schema.json, alert.schema.json, and lead.schema.json carry no approval back-reference today and are included in this enum only for completeness/future-proofing, not because any current schema links to an approval record from them. Null is valid and expected for a gated category with no corresponding entity record among the seven today — notably GC-08 (spending) and GC-09 (paid advertising), for which no dedicated 'spend request' or 'ad request' entity schema exists in this phase's deliverables; this is a disclosed gap (see this file's citing handoff 'Open questions'), not filled here."
+    },
+    "entity_id": {
+      "type": ["string", "null"],
+      "format": "uuid",
+      "description": "The id of the specific entity_type record this approval concerns. Null exactly when entity_type is null (this schema does not enforce that pairing structurally — JSON Schema 2020-12 could express it via a further if/then, but doing so for a field whose sibling is itself already nullable-by-design was judged unnecessary complexity for a Phase 04 structural contract). Plain reference field with no runtime referential-integrity enforcement (architecture/DATA_CONTRACTS.md §7) — nothing checks that this id resolves to a real record of the stated entity_type."
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "description": "What is being asked, in one sentence, plain language, no jargon — APPROVAL_POLICY.md §4 element 1. Also where the 'why' half of gated_category's classification (§4 element 2) is recorded, since this schema does not carry a separate rationale field for that."
+    },
+    "effect_if_approved": {
+      "type": "string",
+      "minLength": 1,
+      "description": "What changes if approved — the concrete, external-facing effect. APPROVAL_POLICY.md §4 element 3."
+    },
+    "reversal_cost": {
+      "type": "string",
+      "minLength": 1,
+      "description": "How hard this is to undo if it turns out to be wrong. APPROVAL_POLICY.md §4 element 4, explicitly modeled on the same discipline DECISIONS.md's own APPROVED_IMPL rows already practice for reversal cost."
+    },
+    "artifact_digest": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The exact digest of the artifact being approved. APPROVAL_POLICY.md §4 element 5, and the binding Invariant 3 requires ('An approval binds to one artifact digest. Any change to the artifact voids it.') — the field the APPROVED -> VOIDED / artifact_digest_mismatch transition (APPROVAL_POLICY.md §2's transition table) compares against a freshly computed digest of the artifact at execution time. This schema does not fix a digest algorithm (e.g. SHA-256 vs a content hash) — no governing document names one, and per D-047 discipline this schema does not invent a specific algorithm choice; a future phase's implementation fixes that and may record it alongside this field if needed. Must remain stable and unique to the exact artifact state that was reviewed — recomputing it against a changed artifact must produce a different value, which is what artifact_digest_mismatch depends on to fire correctly."
+    },
+    "requested_by_role": {
+      "type": ["string", "null"],
+      "enum": ["PHASE_OWNER", null],
+      "description": "Which role executed the `submit` transition (DRAFT -> PENDING_APPROVAL). APPROVAL_POLICY.md §2's transition table assigns this transition to actor PHASE_OWNER only — no other role appears on this edge — so this enum is deliberately restricted to that single value plus null, rather than the full six-role vocabulary used elsewhere in this schema and every other entity schema's created_by_role. Null while status is DRAFT and submit has not yet occurred; once set, remains PHASE_OWNER even as status advances further (submission is a one-time event in this record's history, not something later transitions undo). Also legitimately null for a record whose status is WITHDRAWN, if it was withdrawn directly from DRAFT — DRAFT -> WITHDRAWN is also a PHASE_OWNER-actor edge in the transition table, but unlike every other non-DRAFT status it does not require submit to have fired first (see this schema's allOf conditionals below, which require requested_by_role = PHASE_OWNER for every non-DRAFT status except WITHDRAWN, for exactly this reason)."
+    },
+    "requested_at": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "When the `submit` transition (DRAFT -> PENDING_APPROVAL) occurred, ISO 8601 / RFC 3339. Null while status is DRAFT and submit has not yet occurred."
+    },
+    "decided_by_role": {
+      "type": ["string", "null"],
+      "enum": ["PROJECT_OWNER", "PHASE_OWNER", "DETERMINISTIC_CODE", null],
+      "description": "Which actor executed the most recent transition out of PENDING_APPROVAL or APPROVED. Deliberately NOT the full six-role vocabulary: APPROVAL_POLICY.md §2's transition table assigns every transition leaving PENDING_APPROVAL or APPROVED to exactly one of PROJECT_OWNER (owner_approves, owner_rejects, owner_requests_changes, owner_replaces), PHASE_OWNER (withdraw), or DETERMINISTIC_CODE (staleness_timer, execute_once, validity_window_elapsed, artifact_digest_mismatch) — SPECIALIST, INDEPENDENT_REVIEWER, GOVERNANCE_AUDITOR, and RUNTIME_AGENT never appear as an actor on any edge in that table, so this enum structurally cannot represent one of those four agent roles deciding an approval. `DETERMINISTIC_CODE` is not a member of policy/action_registry.json's six-role `roles` vocabulary — it names the automated-actor column of the transition table itself (Architecture Rule 3 / D-003: deterministic code, not an LLM agent, performs these transitions) and is included here as a distinct literal for exactly that reason, not as a reuse or extension of the role vocabulary. Per Invariant 1 (APPROVAL_POLICY.md §3, 'the entire safety model of the project in one rule') and Invariant 5 ('no agent role holds the APPROVE transition at all'): this field must equal PROJECT_OWNER whenever status is APPROVED — see this schema's allOf conditional below, which encodes that requirement structurally rather than leaving it to be trusted from this description alone. Null while status is DRAFT, PENDING_APPROVAL, or CHANGES_REQUESTED-pending-revise, i.e. before any of the above transitions has fired."
+    },
+    "decided_at": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "When the transition recorded in decided_by_role occurred, ISO 8601 / RFC 3339. Null under the same conditions as decided_by_role."
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "required": ["status"],
+        "properties": { "status": { "const": "APPROVED" } }
+      },
+      "then": {
+        "required": ["decided_by_role"],
+        "properties": { "decided_by_role": { "const": "PROJECT_OWNER" } }
+      }
+    },
+    {
+      "if": {
+        "required": ["status"],
+        "properties": { "status": { "const": "REJECTED" } }
+      },
+      "then": {
+        "required": ["decided_by_role"],
+        "properties": { "decided_by_role": { "const": "PROJECT_OWNER" } }
+      }
+    },
+    {
+      "if": {
+        "required": ["status"],
+        "properties": { "status": { "const": "CHANGES_REQUESTED" } }
+      },
+      "then": {
+        "required": ["decided_by_role"],
+        "properties": { "decided_by_role": { "const": "PROJECT_OWNER" } }
+      }
+    },
+    {
+      "if": {
+        "required": ["status"],
+        "properties": { "status": { "const": "SUPERSEDED" } }
+      },
+      "then": {
+        "required": ["decided_by_role"],
+        "properties": { "decided_by_role": { "const": "PROJECT_OWNER" } }
+      }
+    },
+    {
+      "if": {
+        "required": ["status"],
+        "properties": { "status": { "const": "WITHDRAWN" } }
+      },
+      "then": {
+        "required": ["decided_by_role"],
+        "properties": { "decided_by_role": { "const": "PHASE_OWNER" } }
+      }
+    },
+    {
+      "if": {
+        "required": ["status"],
+        "properties": { "status": { "enum": ["EXPIRED", "EXECUTED", "VOIDED"] } }
+      },
+      "then": {
+        "required": ["decided_by_role"],
+        "properties": { "decided_by_role": { "const": "DETERMINISTIC_CODE" } }
+      }
+    },
+    {
+      "if": {
+        "required": ["status"],
+        "properties": {
+          "status": {
+            "enum": [
+              "PENDING_APPROVAL",
+              "APPROVED",
+              "CHANGES_REQUESTED",
+              "REJECTED",
+              "EXPIRED",
+              "EXECUTED",
+              "SUPERSEDED",
+              "VOIDED"
+            ]
+          }
+        }
+      },
+      "then": {
+        "required": ["requested_by_role"],
+        "properties": { "requested_by_role": { "const": "PHASE_OWNER" } }
+      }
+    },
+    {
+      "if": {
+        "required": ["requested_by_role"],
+        "properties": { "requested_by_role": { "not": { "type": "null" } } }
+      },
+      "then": {
+        "required": ["requested_at"],
+        "properties": { "requested_at": { "not": { "type": "null" } } }
+      }
+    },
+    {
+      "if": {
+        "required": ["decided_by_role"],
+        "properties": { "decided_by_role": { "not": { "type": "null" } } }
+      },
+      "then": {
+        "required": ["decided_at"],
+        "properties": { "decided_at": { "not": { "type": "null" } } }
+      }
+    }
+  ]
+}

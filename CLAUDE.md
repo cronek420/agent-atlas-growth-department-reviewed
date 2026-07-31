@@ -372,3 +372,30 @@ As of 2026-07-30:
   this project, and nothing has been authorized. Whether any *pre-existing*
   connector on this machine is authorized against the owner's own accounts is
   `UNRESOLVED` (`Q-012`).
+
+---
+
+## 14. Verification commands (`tools/`)
+
+There is no build, lint, or app to run — this repository is Markdown policy
+documents plus a handful of dependency-free Python verification scripts. Full
+rationale and each script's documented red-mutation test: `tools/README.md`.
+Run scripts from the repository root; Windows PowerShell 5.1 is the only shell
+verified here, so avoid `&&`, `||`, and other syntax it rejects (`F-01-03`).
+
+```
+python tools/idcheck.py <repo_root> <file> [<file> ...]      # D-/Q-/R-/NG-/F- IDs and relative paths resolve
+python tools/regcheck.py CAPABILITY_REGISTRY.md               # registry status-token and column conformance
+python tools/contractcheck.py CUSTOM_SKILL_BACKLOG.md SKILL_TEST_PLAN.md   # CSK- contracts + trigger tests
+python tools/render_permission_matrix.py [--check]            # (re)generate AGENT_PERMISSION_MATRIX.md; never hand-edit it (D-042)
+python tools/policy_check.py                                  # policy/action_registry.json conformance, V-1..V-13
+python tools/policy_check_selftest.py                         # 12 negative controls proving policy_check.py actually fails when it should
+python tools/blast_radius_check.py --phase-id <NN> --baseline-ref <ref> [--changed-files f1 f2 ...]   # CSK-01: what earlier files may this phase's changes have made stale
+```
+
+**A green result is not evidence by itself** (`F-01-04`): every script above
+ships a documented red mutation in `tools/README.md`. Before trusting a clean
+run, reproduce that script's red case and confirm it fails. Extend this
+directory rather than rewriting checks in a session scratchpad — that mistake
+already cost two phases duplicated, less-correct rebuilds (`tools/README.md`
+§"Why this directory exists").

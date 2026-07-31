@@ -1,0 +1,46 @@
+[
+  {
+    "id": "b75fd6ee-b313-454e-ab4d-b2b67288c9ea",
+    "schema_version": "1.0.0",
+    "idempotency_key": "fixture-experiment-1-create",
+    "status": "RUNNING",
+    "version": 2,
+    "created_at": "2026-07-25T09:00:00Z",
+    "updated_at": "2026-07-31T09:00:00Z",
+    "created_by_role": "SPECIALIST",
+    "name": "fixture-experiment-name-1",
+    "hypothesis": "fixture-experiment-hypothesis-1: a structural placeholder statement of what is being tested.",
+    "variants": [
+      { "variant_label": "fixture-variant-a", "content_id": "6991ff73-2f21-4567-9f25-4cd605185a93" },
+      { "variant_label": "fixture-variant-b", "content_id": null }
+    ],
+    "outcome": "NOT_YET_CONCLUDED",
+    "evaluation_method": null,
+    "winning_variant_label": null,
+    "started_at": "2026-07-25T09:00:00Z",
+    "concluded_at": null,
+    "approval_id": null
+  },
+  {
+    "id": "90429c35-d420-4fdd-bbd6-0bc7edde1fa9",
+    "schema_version": "1.0.0",
+    "idempotency_key": "fixture-experiment-2-create",
+    "status": "CONCLUDED",
+    "version": 4,
+    "created_at": "2026-07-10T09:00:00Z",
+    "updated_at": "2026-07-24T09:00:00Z",
+    "created_by_role": "SPECIALIST",
+    "name": "fixture-experiment-name-2",
+    "hypothesis": "fixture-experiment-hypothesis-2: a structural placeholder statement of what is being tested.",
+    "variants": [
+      { "variant_label": "fixture-variant-a", "content_id": "ace20658-b717-499e-ae5e-89a998e27647" },
+      { "variant_label": "fixture-variant-b", "content_id": "da55c079-bf1a-447c-8bcf-a56d4a179832" }
+    ],
+    "outcome": "WINNER_DECLARED",
+    "evaluation_method": "fixture-evaluation-method: a structural placeholder naming whatever comparison method was used.",
+    "winning_variant_label": "fixture-variant-a",
+    "started_at": "2026-07-10T09:00:00Z",
+    "concluded_at": "2026-07-24T09:00:00Z",
+    "approval_id": null
+  }
+]

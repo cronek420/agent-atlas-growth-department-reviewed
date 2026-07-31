@@ -179,6 +179,25 @@ Added by the Phase 03 Owner, run `phase-03-2026-07-30-b`. All rows above (throug
 - Only `D-041` interprets an explicitly-deferred question (`Q-017`) rather than restating a governing document; it is `APPROVED_IMPL`, not `APPROVED`, because nobody asked the owner to make that specific interpretive call — `CURRENT_PHASE.md` left it as Phase 03's own to make.
 - This phase does **not** add a row disposing of `R-24` or Phase 02's 21 review findings — that is out of scope, per `task_plan.md` and `policy/POLICY_CONTRACT.md` §2.7.
 
+---
+
+# Phase 04 — Data Contracts and State Model (2026-07-31)
+
+Added by the Phase 04 Owner, run `phase-04-2026-07-31-a`. All rows above (through `D-051`) are
+**unmodified**; this register extends rather than overwrites. Next available ID before this
+section: `D-052`.
+
+| ID | Date | Decision | Status | Owner | Rationale | Evidence | Supersedes |
+|---|---|---|---|---|---|---|---|
+| D-052 | 2026-07-31 | **Resolves `Q-016`.** Phase 04's fixtures (validation inputs for its eight schemas) live at `schemas/fixtures/<entity>.fixture.json`, one JSON array per entity, colocated with the schema it validates. No new `tests/` directory is created — `MASTER_PLAN.md` places the first one at Phase 13, and creating it now would pre-empt that phase owner's own decision. | APPROVED_IMPL | Phase 04 Owner (implementation) | `OPEN_QUESTIONS.md` Q-016 named this as the Phase 03/04 owner's own call, not blocking, following the `Q-007` precedent. Colocating needs no speculative directory structure and keeps one owner per file (`CLAUDE.md` §7). Reversal cost: trivial — move eight small files if a later phase prefers a different layout; nothing references the old path except this phase's own gate report. | `OPEN_QUESTIONS.md` Q-016; `architecture/DATA_CONTRACTS.md` §1; `MASTER_PLAN.md` "First `tests/` directory at Phase 13" | — |
+| D-053 | 2026-07-31 | Every schema in `schemas/*.schema.json` is JSON Schema draft 2020-12, shares the seven-field envelope (`id`, `schema_version`, `idempotency_key`, `status`, `version`, `created_at`, `updated_at`, `created_by_role`) defined once in `architecture/DATA_CONTRACTS.md` §2.1, follows the semver backward-compatibility rule in §3, carries a required `idempotency_key` per the deduplication rule in §4, and reports errors in the shape defined in §5. | APPROVED_IMPL | Phase 04 Owner (implementation) | Architecture Rule 3 / `D-003` requires deterministic code, not per-schema agent judgment, to enforce deduplication and state changes — a shared, explicit contract is what a future phase's code can actually implement against. Writing this once, before four specialists draft eight schemas in parallel, is the same T0-before-fan-out pattern Phase 03 used for `policy/POLICY_CONTRACT.md` (`D-041`'s sibling pattern), preventing four independently-invented, incompatible envelopes. Reversal cost: schemas would need a coordinated second pass; no real records exist yet to migrate (no `src/` before Phase 16). | `architecture/DATA_CONTRACTS.md` §2–§5; `README.md` Architecture Rule 3; `D-003` | — |
+
+### Phase 04 register notes
+
+- **Nothing in this section changes any Phase 00–03 decision.** `D-001`–`D-051` are unmodified.
+- Both rows are `APPROVED_IMPL`, not `APPROVED` — technical/structural choices within the Phase 04 owner's delegated mandate (`CLAUDE.md` §5), not owner-stated facts. Both name a trivial reversal cost.
+- Neither row touches `Q-009` (data-privacy handling for lead/contact data). `Q-009` remains `UNRESOLVED`; `schemas/lead.schema.json` is a structural contract only, and `ACT-W10`'s `DENY` on collecting or storing real personal data is unaffected by this phase (`DATA_RETENTION_POLICY.md` §2.4; `architecture/DATA_CONTRACTS.md` §7).
+
 ## Notes on scope of this register — Phase 00 rows (D-001 – D-028)
 
 *Applies to the Phase 00 table at the top of this file. Phase 01's own notes are in the Phase 01 section above.*

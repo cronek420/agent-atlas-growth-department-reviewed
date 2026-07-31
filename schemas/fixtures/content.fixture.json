@@ -1,0 +1,41 @@
+[
+  {
+    "id": "da55c079-bf1a-447c-8bcf-a56d4a179832",
+    "schema_version": "1.0.0",
+    "idempotency_key": "fixture-content-1-create",
+    "status": "DRAFT",
+    "version": 1,
+    "created_at": "2026-07-31T09:00:00Z",
+    "updated_at": "2026-07-31T09:00:00Z",
+    "created_by_role": "SPECIALIST",
+    "title": "fixture-content-title-1",
+    "body": "fixture-content-body-1: a structural placeholder for a piece of marketing copy, not real published text.",
+    "approval_id": null
+  },
+  {
+    "id": "6991ff73-2f21-4567-9f25-4cd605185a93",
+    "schema_version": "1.0.0",
+    "idempotency_key": "fixture-content-2-create",
+    "status": "READY_FOR_REVIEW",
+    "version": 2,
+    "created_at": "2026-07-31T09:05:00Z",
+    "updated_at": "2026-07-31T09:30:00Z",
+    "created_by_role": "SPECIALIST",
+    "title": "fixture-content-title-2",
+    "body": "fixture-content-body-2: a structural placeholder for a piece of marketing copy, not real published text.",
+    "approval_id": "b0f19883-430c-4e02-abed-aaa8f1570c18"
+  },
+  {
+    "id": "ace20658-b717-499e-ae5e-89a998e27647",
+    "schema_version": "1.0.0",
+    "idempotency_key": "fixture-content-3-create",
+    "status": "ARCHIVED",
+    "version": 3,
+    "created_at": "2026-07-20T09:00:00Z",
+    "updated_at": "2026-07-31T09:00:00Z",
+    "created_by_role": "PHASE_OWNER",
+    "title": "fixture-content-title-3",
+    "body": "fixture-content-body-3: a structural placeholder for a piece of marketing copy, not real published text.",
+    "approval_id": null
+  }
+]

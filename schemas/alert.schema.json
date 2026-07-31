@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rdbc.internal/schemas/alert.schema.json",
+  "title": "Alert",
+  "description": "A monitoring or incident alert raised about this project's own operation (e.g. a capability failure, a policy violation, a stuck workflow) for Rough Draft Builders Club (RDBC) marketing operations. This is a schema *contract* only (architecture/DATA_CONTRACTS.md §8); no runtime enforces it yet (src/ does not exist before Phase 16) — Phase 21 (\"Alerts and Monitoring\") raises real ones against this shape. `category`'s enum is taken verbatim from architecture/DATA_CONTRACTS.md §5's error-shape `category` vocabulary, itself taken from this phase's own prompt's ten-value FAILURE HANDLING classification list, so an alert and the error that may have triggered it share one vocabulary instead of two. This schema records only the alert's own triage lifecycle; it does not itself perform or enforce any autonomy-ladder demotion, an escalation code from `policy/action_registry.json`'s `escalation_codes`, or an approval action — those are separate mechanisms this record may reference by convention (`entity_type`/`entity_id`) but does not implement. See architecture/STATE_MACHINE.md for this entity's documented lifecycle transitions between `status` values.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "schema_version",
+    "idempotency_key",
+    "status",
+    "version",
+    "created_at",
+    "updated_at",
+    "created_by_role",
+    "title",
+    "description",
+    "source",
+    "severity",
+    "category",
+    "entity_type",
+    "entity_id",
+    "acknowledged_by_role",
+    "acknowledged_at",
+    "resolved_at",
+    "resolution_notes"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Server-assigned identity. Never client-supplied, never reused. Shared envelope field, architecture/DATA_CONTRACTS.md §2.1."
+    },
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "The exact semver version of alert.schema.json this record was written against. architecture/DATA_CONTRACTS.md §2.1, §3."
+    },
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Caller-chosen deduplication key; a create request whose idempotency_key matches an existing alert record returns the existing record rather than creating a duplicate. architecture/DATA_CONTRACTS.md §2.1, §4."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["NEW", "ACKNOWLEDGED", "INVESTIGATING", "RESOLVED", "CLOSED"],
+      "description": "This alert's own triage lifecycle status. Enum values and reasoning are this schema's own design choice (Analytics Engineer, Phase 04); transitions between them are documented separately in architecture/STATE_MACHINE.md, which cites this exact enum. NEW: the alert has been raised and not yet triaged. ACKNOWLEDGED: a human or agent has seen the alert and accepted responsibility for it, but has not yet begun investigating. INVESTIGATING: active work is underway to understand or address the alert's cause. RESOLVED: the underlying condition has been addressed. CLOSED: the alert is retired from active tracking, whether resolved, a duplicate, or a false positive — `resolution_notes` below records which."
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Optimistic-concurrency counter, starts at 1. architecture/DATA_CONTRACTS.md §2.1."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 / RFC 3339. Set once, never mutated. architecture/DATA_CONTRACTS.md §2.1."
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 / RFC 3339. Set on every accepted mutation; must be >= created_at. architecture/DATA_CONTRACTS.md §2.1."
+    },
+    "created_by_role": {
+      "type": "string",
+      "enum": [
+        "PROJECT_OWNER",
+        "PHASE_OWNER",
+        "SPECIALIST",
+        "INDEPENDENT_REVIEWER",
+        "GOVERNANCE_AUDITOR",
+        "RUNTIME_AGENT"
+      ],
+      "description": "Which role created this record — a closed role token from policy/action_registry.json's `roles` array, never a person's name or an invented role. architecture/DATA_CONTRACTS.md §2.1."
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "description": "A short structural label identifying this alert internally (e.g. for a queue or index)."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The alert's own detail text explaining what was observed. Must never contain a secret (SECURITY_POLICY.md) or personal data (DATA_RETENTION_POLICY.md §2.4) — an alert about a rejected lead record describes the rejection, not the data that was rejected, mirroring architecture/DATA_CONTRACTS.md §5's identical rule for the error shape's own `message` field."
+    },
+    "source": {
+      "type": "string",
+      "minLength": 1,
+      "description": "A structural identifier for what raised this alert (e.g. which capability, phase, or monitoring check) — not a person's name."
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"],
+      "description": "This alert's own severity classification, a schema design choice (Analytics Engineer, Phase 04) not itself defined by any governing document. A future phase may attach concrete triage rules (e.g. a minimum severity requiring immediate Project Owner notification), but this schema does not assert any such rule or numeric threshold (D-047)."
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "code",
+        "configuration",
+        "credentials",
+        "permissions",
+        "data",
+        "dependency",
+        "rate_limit",
+        "provider_outage",
+        "policy",
+        "unresolved_decision"
+      ],
+      "description": "Taken verbatim from architecture/DATA_CONTRACTS.md §5's error-shape `category` vocabulary — itself this phase's own prompt's ten-value FAILURE HANDLING classification list — so alerts and the errors that may trigger them share one vocabulary rather than two."
+    },
+    "entity_type": {
+      "type": ["string", "null"],
+      "minLength": 1,
+      "description": "Which schema/entity this alert concerns, if any (e.g. 'content', 'campaign', 'experiment') — mirrors architecture/DATA_CONTRACTS.md §5's error-shape `entity_type` field. Null if this alert is not about a specific record."
+    },
+    "entity_id": {
+      "type": ["string", "null"],
+      "format": "uuid",
+      "description": "Which specific record this alert concerns, if any — mirrors architecture/DATA_CONTRACTS.md §5's error-shape `entity_id` field. Null if not applicable, or if the alert arose before an id was assigned. Plain reference field with no runtime referential-integrity enforcement (architecture/DATA_CONTRACTS.md §7)."
+    },
+    "acknowledged_by_role": {
+      "type": ["string", "null"],
+      "enum": [
+        "PROJECT_OWNER",
+        "PHASE_OWNER",
+        "SPECIALIST",
+        "INDEPENDENT_REVIEWER",
+        "GOVERNANCE_AUDITOR",
+        "RUNTIME_AGENT",
+        null
+      ],
+      "description": "Which role acknowledged this alert, if any. A role token, not a person's identity — the same closed vocabulary and convention as `created_by_role` above (architecture/DATA_CONTRACTS.md §2.1). Null until the alert reaches ACKNOWLEDGED or later."
+    },
+    "acknowledged_at": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "When this alert was acknowledged, ISO 8601 / RFC 3339. Null until `status` reaches ACKNOWLEDGED or later."
+    },
+    "resolved_at": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "When this alert was resolved, ISO 8601 / RFC 3339. Null until `status` reaches RESOLVED or later. Structural only — this schema imposes no maximum time-to-resolve threshold (D-047: no numeric threshold is invented)."
+    },
+    "resolution_notes": {
+      "type": ["string", "null"],
+      "description": "Free-text account of how this alert was resolved or why it was closed without resolution (e.g. duplicate, false positive). Must never contain a secret or personal data, per the same rule stated on `description` above. Null until `status` reaches RESOLVED or CLOSED."
+    }
+  }
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "2b013950-182d-48f5-8bd4-73d388fcc383",
+    "schema_version": "1.0.0",
+    "idempotency_key": "fixture-brand-1-create",
+    "status": "DRAFT",
+    "version": 1,
+    "created_at": "2026-07-31T09:00:00Z",
+    "updated_at": "2026-07-31T09:00:00Z",
+    "created_by_role": "SPECIALIST",
+    "title": "fixture-brand-title-1: voice and visual system, version N",
+    "summary": "fixture-brand-summary-1: a structural placeholder describing what this version would define, not real brand content."
+  },
+  {
+    "id": "c1a2f9a0-6f0b-4e34-9a4e-0a6a2f6a4b11",
+    "schema_version": "1.0.0",
+    "idempotency_key": "fixture-brand-2-create",
+    "status": "ACTIVE",
+    "version": 1,
+    "created_at": "2026-07-31T09:10:00Z",
+    "updated_at": "2026-07-31T09:10:00Z",
+    "created_by_role": "PHASE_OWNER",
+    "title": "fixture-brand-title-2: voice and visual system, version N+1",
+    "summary": "fixture-brand-summary-2: a structural placeholder describing what this version would define, not real brand content."
+  }
+]

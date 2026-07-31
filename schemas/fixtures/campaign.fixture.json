@@ -1,0 +1,36 @@
+[
+  {
+    "id": "7e91357b-3d76-44cc-bf0b-b90e87dbceff",
+    "schema_version": "1.0.0",
+    "idempotency_key": "fixture-campaign-1-create",
+    "status": "DRAFT",
+    "version": 1,
+    "created_at": "2026-07-31T09:00:00Z",
+    "updated_at": "2026-07-31T09:00:00Z",
+    "created_by_role": "PHASE_OWNER",
+    "name": "fixture-campaign-name-1",
+    "description": "fixture-campaign-description-1: a structural placeholder, not a real RDBC campaign.",
+    "approval_id": null,
+    "product_ids": [],
+    "content_ids": [],
+    "planned_start_at": null,
+    "planned_end_at": null
+  },
+  {
+    "id": "e1e7f3fe-68cc-4905-9d0f-421fda96a606",
+    "schema_version": "1.0.0",
+    "idempotency_key": "fixture-campaign-2-create",
+    "status": "ACTIVE",
+    "version": 3,
+    "created_at": "2026-07-15T09:00:00Z",
+    "updated_at": "2026-07-31T09:00:00Z",
+    "created_by_role": "SPECIALIST",
+    "name": "fixture-campaign-name-2",
+    "description": "fixture-campaign-description-2: a structural placeholder, not a real RDBC campaign.",
+    "approval_id": "952fa32b-e3fd-4fb3-8543-aa0612d9428b",
+    "product_ids": ["5907a1a4-3740-4675-9079-e59e9eb91c8e"],
+    "content_ids": ["6991ff73-2f21-4567-9f25-4cd605185a93", "ace20658-b717-499e-ae5e-89a998e27647"],
+    "planned_start_at": "2026-07-20T00:00:00Z",
+    "planned_end_at": "2026-08-20T00:00:00Z"
+  }
+]

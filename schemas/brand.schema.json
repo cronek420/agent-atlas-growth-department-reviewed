@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rdbc.internal/schemas/brand.schema.json",
+  "title": "Brand",
+  "description": "A versioned brand-identity record for Rough Draft Builders Club (RDBC) — voice, tone, and visual-system definitions as they evolve over time. This is a schema *contract* only (architecture/DATA_CONTRACTS.md §8); no runtime enforces it yet (src/ does not exist before Phase 16). Deliberately structural: the project's actual brand content (voice guidelines, visual-system specification) does not exist yet — Phase 07 (\"Brand and Creative System\") authors real instances against this shape. No field in this schema or its fixtures may contain a real or realistic-looking RDBC brand name, tagline, or visual-identity value (DATA_RETENTION_POLICY.md §7, extended to schema documents project-wide). See architecture/STATE_MACHINE.md for this entity's documented lifecycle transitions between `status` values.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "schema_version",
+    "idempotency_key",
+    "status",
+    "version",
+    "created_at",
+    "updated_at",
+    "created_by_role",
+    "title",
+    "summary"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Server-assigned identity. Never client-supplied, never reused. Shared envelope field, architecture/DATA_CONTRACTS.md §2.1."
+    },
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "The exact semver version of brand.schema.json this record was written against. architecture/DATA_CONTRACTS.md §2.1, §3."
+    },
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Caller-chosen deduplication key; a create request whose idempotency_key matches an existing brand record returns the existing record rather than creating a duplicate. architecture/DATA_CONTRACTS.md §2.1, §4."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["DRAFT", "ACTIVE", "SUPERSEDED"],
+      "description": "This brand-identity version's own lifecycle status. Enum values and reasoning are this schema's own design choice (Data Architect, Phase 04); transitions between them are documented separately in architecture/STATE_MACHINE.md, which cites this exact enum. DRAFT: this version of the brand identity is being authored or revised and is not the version currently in use. ACTIVE: this is the current, in-use version of the brand identity — at most one brand record is expected to be ACTIVE at a time, though this schema does not itself enforce that (no runtime exists; a future phase's deterministic code would enforce single-ACTIVE, per Architecture Rule 3 / D-003). SUPERSEDED: this version was once ACTIVE and has been replaced by a newer version; retained for history, consistent with this project's general append/supersede rule (D-001) rather than deletion or in-place rewriting."
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Optimistic-concurrency counter, starts at 1. architecture/DATA_CONTRACTS.md §2.1. Distinct from the brand-identity's own conceptual \"version number\" a human might refer to informally (e.g. \"brand v2\") — this field is the record's own concurrency counter, not a marketing-facing version label."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 / RFC 3339. Set once, never mutated. architecture/DATA_CONTRACTS.md §2.1."
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 / RFC 3339. Set on every accepted mutation; must be >= created_at. architecture/DATA_CONTRACTS.md §2.1."
+    },
+    "created_by_role": {
+      "type": "string",
+      "enum": [
+        "PROJECT_OWNER",
+        "PHASE_OWNER",
+        "SPECIALIST",
+        "INDEPENDENT_REVIEWER",
+        "GOVERNANCE_AUDITOR",
+        "RUNTIME_AGENT"
+      ],
+      "description": "Which role created this record — a closed role token from policy/action_registry.json's `roles` array, never a person's name or an invented role. architecture/DATA_CONTRACTS.md §2.1."
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "description": "A short structural label identifying what this brand-identity version defines, e.g. a placeholder such as \"voice and visual system, version N\" in a fixture — never a real RDBC brand asset name."
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "description": "A structural description of what this brand-identity version covers (e.g. that it defines voice, tone, or a visual-system specification) without instantiating any actual brand content — that content is Phase 07's deliverable, not this phase's."
+    }
+  }
+}

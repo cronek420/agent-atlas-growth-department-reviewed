@@ -269,7 +269,7 @@ Original text retained below for the record.
 ---
 
 ### Q-016 — Where do Phase 04's fixtures live?
-**Status:** UNRESOLVED
+**Status:** ✅ **RESOLVED 2026-07-31 (`D-052`, Phase 04 Owner)**
 
 **Question:** Phase 04's pass condition is *"Schemas validate fixtures."* Its deliverable list names eight schemas and a state machine — **no home for fixtures**. `MASTER_PLAN.md` places the first `tests/` directory at Phase 13, nine phases later. Where do they go?
 
@@ -278,6 +278,8 @@ Original text retained below for the record.
 **What resolution unblocks:** Phase 04's gate.
 
 **Owner action required:** none strictly required from the Project Owner — the **Phase 03 or Phase 04 owner** may record the intended location as an implementation decision. Raised here so Phase 04 does not discover it at the start line, following the `Q-007` precedent.
+
+**Resolution:** `schemas/fixtures/<entity>.fixture.json`, colocated with the schema each validates — no new `tests/` directory pre-empting Phase 13. Full reasoning: `architecture/DATA_CONTRACTS.md` §1; `DECISIONS.md` `D-052`.
 
 ---
 
@@ -325,7 +327,7 @@ Original text retained below for the record.
 | Q-013 | Change control over the machine-local capability surface | UNRESOLVED | Whether `CAPABILITY_REGISTRY.md` stays valid at later gates |
 | Q-014 | Which phase owns the scheduled-execution host | ✅ RESOLVED 2026-07-30 (`D-051`) — Phase 16 | — |
 | Q-015 | May the system send notifications to the Project Owner | UNRESOLVED | Phase 19 delivery; Phase 21 alerting |
-| Q-016 | Where Phase 04's fixtures live | UNRESOLVED | Phase 04 gate |
+| Q-016 | Where Phase 04's fixtures live | ✅ RESOLVED 2026-07-31 (`D-052`) — `schemas/fixtures/` | — |
 | Q-017 | What Phase 03's "Policy conflicts tested" requires | ✅ RESOLVED 2026-07-30 (`D-041`) | Phase 03 structure and gate evidence |
 
 ## Which of these block the Phase 00 gate
@@ -336,14 +338,14 @@ Original text retained below for the record.
 
 Q-001, Q-002, Q-003, Q-005, Q-006, Q-007, Q-008, and Q-009 all block *later* phases and do not need resolution before Phase 01 begins. Q-001 in particular should be answered before Phase 09.
 
-### Remaining open: 12 of 17
+### Remaining open: 11 of 17
 
-*(Updated by the Phase 03 Owner, 2026-07-30 — `Q-008` resolved via `D-050`, `Q-014` resolved via `D-051`, both owner-delegated. `Q-017` resolved via `D-041`. Was 14 of 17.)*
+*(Updated by the Phase 04 Owner, 2026-07-31 — `Q-016` resolved via `D-052`. Was 12 of 17. Previously updated by the Phase 03 Owner, 2026-07-30 — `Q-008` resolved via `D-050`, `Q-014` resolved via `D-051`, both owner-delegated; `Q-017` resolved via `D-041`.)*
 
-Q-001, Q-002, Q-003, **Q-004 (BLOCKED)**, Q-005, Q-006, Q-007, Q-009, Q-012, Q-013, Q-015, Q-016.
+Q-001, Q-002, Q-003, **Q-004 (BLOCKED)**, Q-005, Q-006, Q-007, Q-009, Q-012, Q-013, Q-015.
 
-**Q-004 remains the only `BLOCKED` item.** None of the six new questions blocked the Phase 02 gate — each was recorded rather than guessed, per `D-008`.
+**Q-004 remains the only `BLOCKED` item.** None of the questions resolved so far were guessed rather than reasoned from known structure, per `D-008`.
 
-**Which of the new six need the Project Owner personally:** `Q-012`, `Q-013`, `Q-014`, `Q-015`. The other two (`Q-016`, `Q-017`) are decisions for the Phase 03/04 owners and are recorded here only so those phases do not meet them at the start line — the `Q-007` precedent.
+**Which of the remaining need the Project Owner personally:** `Q-012`, `Q-013`, `Q-015`, and `Q-009` (or an explicit delegation to propose a default, per Q-009's own "Owner action required" text). Phase 04 did not attempt that delegation itself; it proceeded with `lead.schema.json` as a structural-only contract per `DATA_RETENTION_POLICY.md` §2.4, leaving `Q-009` exactly as open as it found it.
 
 **Which is most urgent:** `Q-014`. Left open it silently reverses `D-019a`, an owner-confirmed decision, and it should not wait until Phase 19 discovers it. `Q-012` is the cheapest to answer and the one that most directly affects whether `docs/PROJECT_BOUNDARIES.md` §3 is currently accurate.

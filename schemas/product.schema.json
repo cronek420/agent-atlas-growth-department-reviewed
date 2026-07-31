@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rdbc.internal/schemas/product.schema.json",
+  "title": "Product",
+  "description": "A product or service offering of Rough Draft Builders Club (RDBC) that this marketing-operations project may research, describe, and market. This is a schema *contract* only (architecture/DATA_CONTRACTS.md §8) — no runtime enforces it yet (src/ does not exist before Phase 16). Pricing is one of the nine human-approval-gated categories (CLAUDE.md §4, README.md \"Primary success criteria\", policy/action_registry.json GC-02): this schema deliberately carries no raw price/amount/currency field, because instantiating one without a governing decision on its shape would invite a value to be set with no approval binding. Instead, `pricing_approval_id` links the record to whatever approval authorized its current pricing/offer terms, leaving the price value itself outside this schema's scope until a later phase defines it against an actual approval-queue implementation (Phase 15, per MASTER_PLAN.md). See architecture/STATE_MACHINE.md for this entity's documented lifecycle transitions between `status` values.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "schema_version",
+    "idempotency_key",
+    "status",
+    "version",
+    "created_at",
+    "updated_at",
+    "created_by_role",
+    "name",
+    "description",
+    "pricing_approval_id"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Server-assigned identity. Never client-supplied, never reused. Shared envelope field, architecture/DATA_CONTRACTS.md §2.1."
+    },
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "The exact semver version of product.schema.json this record was written against. architecture/DATA_CONTRACTS.md §2.1, §3."
+    },
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Caller-chosen deduplication key; a create request whose idempotency_key matches an existing product record returns the existing record rather than creating a duplicate. architecture/DATA_CONTRACTS.md §2.1, §4."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["DRAFT", "ACTIVE", "DEPRECATED", "RETIRED"],
+      "description": "This product's own production/lifecycle status — distinct from any approval workflow status. Enum values and reasoning are this schema's own design choice (Data Architect, Phase 04); the transitions between them are documented separately in architecture/STATE_MACHINE.md, which cites this exact enum. DRAFT: the product is being defined internally and is not yet offered to any external audience. ACTIVE: the product is currently offered. DEPRECATED: the product is being phased out — still referenced by existing records or commitments but no longer promoted as a current offering. RETIRED: the product is no longer offered or supported in any capacity."
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Optimistic-concurrency counter, starts at 1. architecture/DATA_CONTRACTS.md §2.1."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 / RFC 3339. Set once, never mutated. architecture/DATA_CONTRACTS.md §2.1."
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 / RFC 3339. Set on every accepted mutation; must be >= created_at. architecture/DATA_CONTRACTS.md §2.1."
+    },
+    "created_by_role": {
+      "type": "string",
+      "enum": [
+        "PROJECT_OWNER",
+        "PHASE_OWNER",
+        "SPECIALIST",
+        "INDEPENDENT_REVIEWER",
+        "GOVERNANCE_AUDITOR",
+        "RUNTIME_AGENT"
+      ],
+      "description": "Which role created this record — a closed role token from policy/action_registry.json's `roles` array, never a person's name or an invented role. architecture/DATA_CONTRACTS.md §2.1."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The product's structural name/label. This schema places no format or content constraint on it beyond non-emptiness — no example value here resembles a real RDBC product name (architecture/DATA_CONTRACTS.md §1's data-minimisation rule, extended project-wide)."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "description": "A structural description of what this product is. Any external-facing claim this text implies is itself GC-01 (\"claims\") gated content — storing the description here is not the same as it being approved for external use (PUBLISHING_POLICY.md governs that separately)."
+    },
+    "pricing_approval_id": {
+      "type": ["string", "null"],
+      "format": "uuid",
+      "description": "References the approval record (see APPROVAL_POLICY.md, and schemas/approval.schema.json) that authorized this product's current pricing/offer terms. Null until a pricing approval has been requested or granted — pricing is GC-02, one of the nine categories requiring human approval before any external-facing statement of price (CLAUDE.md §4). This field does not itself carry a price value; see this schema's top-level description for why."
+    }
+  }
+}

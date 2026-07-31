@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rdbc.internal/schemas/experiment.schema.json",
+  "title": "Experiment",
+  "description": "A copy/creative test comparing two or more variants of content for Rough Draft Builders Club (RDBC), producing a declared winner, an inconclusive result, or no conclusion yet. This is a schema *contract* only (architecture/DATA_CONTRACTS.md §8); no runtime enforces it yet (src/ does not exist before Phase 16) — Phase 14 (\"Experimentation\") runs real ones against this shape. Per D-047, this schema never asserts a numeric statistical-significance threshold, confidence level, or minimum-sample-size figure: `evaluation_method` below is a free-text description of whatever method a future phase's deterministic code actually applies, not a number this schema itself asserts is correct. `winning_variant_label` and `outcome` record the *result* of an evaluation performed elsewhere; this schema does not perform or validate that evaluation. `approval_id` links this record to the approval workflow (APPROVAL_POLICY.md §2; architecture/DATA_CONTRACTS.md §6) for cases where the experiment's own scope (e.g. testing two claims, or a pricing-adjacent variant) itself requires sign-off, distinct from any approval already carried by each variant's own linked content record. See architecture/STATE_MACHINE.md for this entity's documented lifecycle transitions between `status` values.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "schema_version",
+    "idempotency_key",
+    "status",
+    "version",
+    "created_at",
+    "updated_at",
+    "created_by_role",
+    "name",
+    "hypothesis",
+    "variants",
+    "outcome",
+    "evaluation_method",
+    "winning_variant_label",
+    "started_at",
+    "concluded_at",
+    "approval_id"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Server-assigned identity. Never client-supplied, never reused. Shared envelope field, architecture/DATA_CONTRACTS.md §2.1."
+    },
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "The exact semver version of experiment.schema.json this record was written against. architecture/DATA_CONTRACTS.md §2.1, §3."
+    },
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Caller-chosen deduplication key; a create request whose idempotency_key matches an existing experiment record returns the existing record rather than creating a duplicate. architecture/DATA_CONTRACTS.md §2.1, §4."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["DRAFT", "RUNNING", "CONCLUDED", "ARCHIVED"],
+      "description": "This experiment's own lifecycle status — distinct from the linked approval record's status (`approval_id` below; architecture/DATA_CONTRACTS.md §6). Enum values and reasoning are this schema's own design choice (Analytics Engineer, Phase 04); transitions between them are documented separately in architecture/STATE_MACHINE.md, which cites this exact enum. DRAFT: the experiment's hypothesis and variants are being assembled and it has not started running. RUNNING: the experiment is actively live and collecting results. CONCLUDED: the experiment has stopped running and an outcome (see `outcome` below) has been recorded, whether a winner was declared or the result was inconclusive. ARCHIVED: the experiment is retired from active consideration, whether it concluded normally or was abandoned before conclusion."
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Optimistic-concurrency counter, starts at 1. architecture/DATA_CONTRACTS.md §2.1."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 / RFC 3339. Set once, never mutated. architecture/DATA_CONTRACTS.md §2.1."
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 / RFC 3339. Set on every accepted mutation; must be >= created_at. architecture/DATA_CONTRACTS.md §2.1."
+    },
+    "created_by_role": {
+      "type": "string",
+      "enum": [
+        "PROJECT_OWNER",
+        "PHASE_OWNER",
+        "SPECIALIST",
+        "INDEPENDENT_REVIEWER",
+        "GOVERNANCE_AUDITOR",
+        "RUNTIME_AGENT"
+      ],
+      "description": "Which role created this record — a closed role token from policy/action_registry.json's `roles` array, never a person's name or an invented role. architecture/DATA_CONTRACTS.md §2.1."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "A short structural label identifying this experiment internally — not itself published copy, and not an example of a real RDBC experiment name (architecture/DATA_CONTRACTS.md §1's data-minimisation rule, extended project-wide)."
+    },
+    "hypothesis": {
+      "type": "string",
+      "minLength": 1,
+      "description": "A structural statement of what this experiment is testing and why (e.g. which variable is being varied and what outcome is expected) — not itself a claim, testimonial, or pricing statement. If the variants being tested touch a gated category (CLAUDE.md §4), that gate applies to the variants' own linked content, not to this hypothesis text."
+    },
+    "variants": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["variant_label", "content_id"],
+        "properties": {
+          "variant_label": {
+            "type": "string",
+            "minLength": 1,
+            "description": "A short structural label identifying this variant within the experiment (e.g. an arm identifier) — not itself the published copy."
+          },
+          "content_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "References the content.schema.json record embodying this variant's copy, if one has been drafted yet. Null while a variant is planned but not yet authored. Plain reference field with no runtime referential-integrity enforcement (architecture/DATA_CONTRACTS.md §7) — nothing checks that this id resolves to a real content record."
+          }
+        }
+      },
+      "description": "The set of variants being compared in this experiment. May be an empty array while the experiment is still in DRAFT and its variants are not yet defined. This schema imposes no minimum variant count — no structural threshold is invented for what counts as a valid test (D-047 discipline extended to schema shape); that judgment belongs to whatever future phase actually runs experiments."
+    },
+    "outcome": {
+      "type": "string",
+      "enum": ["NOT_YET_CONCLUDED", "WINNER_DECLARED", "INCONCLUSIVE"],
+      "description": "The result classification for this experiment. NOT_YET_CONCLUDED: no evaluation has been completed (expected value while `status` is DRAFT or RUNNING). WINNER_DECLARED: an evaluation identified a winning variant, recorded in `winning_variant_label`. INCONCLUSIVE: an evaluation was performed but did not identify a winner. This schema deliberately does not assert or embed any numeric statistical-significance threshold, confidence level, or minimum-sample-size figure (D-047) — the method used to reach this classification is described, not asserted as correct, in `evaluation_method` below."
+    },
+    "evaluation_method": {
+      "type": ["string", "null"],
+      "description": "A free-text description of the statistical or heuristic method used to reach `outcome` (e.g. naming a test type or a decision rule) — a description of what was used, not a number this schema asserts is correct. Null until an evaluation has been performed. D-047: no significance threshold, confidence level, or sample-size figure is defined by this schema; if a future phase's deterministic code applies one, that number lives in that code or its configuration, not here."
+    },
+    "winning_variant_label": {
+      "type": ["string", "null"],
+      "description": "The `variant_label` (see `variants` above) of the variant an evaluation declared the winner. Null unless `outcome` is `WINNER_DECLARED`. This schema does not itself perform or validate that an evaluation actually declared this winner — it records the result of an evaluation performed elsewhere, per this schema's own top-level description."
+    },
+    "started_at": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "When this experiment actually began running, ISO 8601 / RFC 3339. Null until `status` reaches RUNNING."
+    },
+    "concluded_at": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "When this experiment actually stopped running and reached its outcome, ISO 8601 / RFC 3339. Null until `status` reaches CONCLUDED. Structural only — this schema imposes no minimum or maximum run-duration threshold (D-047: no numeric threshold is invented)."
+    },
+    "approval_id": {
+      "type": ["string", "null"],
+      "format": "uuid",
+      "description": "References the approval record (APPROVAL_POLICY.md §2; schemas/approval.schema.json) governing this experiment as a whole, if any request has been submitted. Null until an experiment-level approval request exists. Kept separate from each variant's own `approval_id` on its linked content.schema.json record, mirroring campaign.schema.json's identical composition choice (architecture/DATA_CONTRACTS.md §6): an experiment whose variants collectively touch a gated category (CLAUDE.md §4) may need sign-off at the experiment level, distinct from and in addition to any approval each individual variant carries on its own content record. This field does not substitute for, and is not substituted by, any individual variant's own approval_id."
+    }
+  }
+}

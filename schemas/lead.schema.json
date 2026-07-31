@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rdbc.internal/schemas/lead.schema.json",
+  "title": "Lead",
+  "description": "A contact record representing an inbound lead for Rough Draft Builders Club (RDBC). This schema defines the *shape* a future lead record would have; it does not authorize creating one. Instantiating a real record against this schema — collecting, importing, or storing any actual person's name, email address, phone number, or other identifying detail in the fields below — is PROHIBITED (`policy/action_registry.json` `ACT-W10`, outcome `DENY`, for every role including `RUNTIME_AGENT`, with no exception) until `Q-009` (data-privacy handling) is resolved by the Project Owner AND a storage substrate outside this repository's Git history is decided (`DATA_RETENTION_POLICY.md` §2.4, §4 — Git has no real deletion, so personal data must never be committed to this repository's history; the DENY is not lifted by `Q-009` alone). This is a schema *contract* only (architecture/DATA_CONTRACTS.md §8); no runtime enforces it yet (src/ does not exist before Phase 16), and even once one exists it may not write a real record against this shape into this repository, per the substrate constraint just stated. `status` below defines the routing states a real lead *would* move through once `Q-009` unblocks collection — defining the states now does not authorize using them today. `consent_status` records only a classification for lead-routing purposes; whether consent must be obtained before outreach, how it is captured, and how an opt-out is honored are owned entirely by `MESSAGING_POLICY.md` (`ACT-S04`, `ACT-S05`), not restated here (`DATA_RETENTION_POLICY.md` §6 boundary). Any fixture built against this schema (`schemas/fixtures/lead.fixture.json`) must use structurally-described placeholder values only (e.g. `\"contact_name\": \"fixture-contact-name\"`), never a realistic-looking name, email, or phone number (architecture/DATA_CONTRACTS.md §1). See architecture/STATE_MACHINE.md for this entity's documented lifecycle transitions between `status` values — also written and reviewed subject to the same DENY-until-`Q-009` constraint.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "schema_version",
+    "idempotency_key",
+    "status",
+    "version",
+    "created_at",
+    "updated_at",
+    "created_by_role",
+    "contact_name",
+    "email",
+    "phone",
+    "source",
+    "consent_status"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Server-assigned identity. Never client-supplied, never reused. Shared envelope field, architecture/DATA_CONTRACTS.md §2.1."
+    },
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "The exact semver version of lead.schema.json this record was written against. architecture/DATA_CONTRACTS.md §2.1, §3."
+    },
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Caller-chosen deduplication key; a create request whose idempotency_key matches an existing lead record returns the existing record rather than creating a duplicate. architecture/DATA_CONTRACTS.md §2.1, §4."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["NEW", "CONTACTED", "QUALIFIED", "CONVERTED", "LOST", "ARCHIVED"],
+      "description": "The routing states a real lead would move through once Q-009 unblocks collection (see this schema's top-level description) — defining these states now does not authorize using them today. Enum values and reasoning are this schema's own design choice (Analytics Engineer, Phase 04); transitions between them are documented separately in architecture/STATE_MACHINE.md, which cites this exact enum. NEW: a lead record has been created and not yet contacted. CONTACTED: outreach has occurred, subject to MESSAGING_POLICY.md's own consent gating (ACT-S04, ACT-S05), not restated here. QUALIFIED: the lead has been assessed as a genuine prospect. CONVERTED: the lead became a customer. LOST: the lead is no longer being pursued without having converted. ARCHIVED: the record is retired from active routing, whatever its outcome."
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Optimistic-concurrency counter, starts at 1. architecture/DATA_CONTRACTS.md §2.1."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 / RFC 3339. Set once, never mutated. architecture/DATA_CONTRACTS.md §2.1."
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 / RFC 3339. Set on every accepted mutation; must be >= created_at. architecture/DATA_CONTRACTS.md §2.1."
+    },
+    "created_by_role": {
+      "type": "string",
+      "enum": [
+        "PROJECT_OWNER",
+        "PHASE_OWNER",
+        "SPECIALIST",
+        "INDEPENDENT_REVIEWER",
+        "GOVERNANCE_AUDITOR",
+        "RUNTIME_AGENT"
+      ],
+      "description": "Which role created this record — a closed role token from policy/action_registry.json's `roles` array, never a person's name or an invented role. architecture/DATA_CONTRACTS.md §2.1."
+    },
+    "contact_name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The lead's name as provided at intake. Personal data under DATA_RETENTION_POLICY.md §2.4 — see this schema's top-level description: no real value may ever be written here until Q-009 resolves and a non-Git storage substrate is decided. A fixture built against this schema must use a structurally-described placeholder (e.g. 'fixture-contact-name'), never a realistic-looking name."
+    },
+    "email": {
+      "type": "string",
+      "format": "email",
+      "description": "The lead's contact email address as provided at intake. Personal data under DATA_RETENTION_POLICY.md §2.4 — see this schema's top-level description: no real value may ever be written here until Q-009 resolves and a non-Git storage substrate is decided. A fixture built against this schema must use a structurally-described placeholder, never a realistic-looking email address."
+    },
+    "phone": {
+      "type": ["string", "null"],
+      "description": "The lead's contact phone number as provided at intake, in whatever form the intake channel supplied it. No structural format is imposed — this project has not chosen a locale-specific pattern and none should be assumed. Null if no phone number was provided. Personal data under DATA_RETENTION_POLICY.md §2.4 — see this schema's top-level description: no real value may ever be written here until Q-009 resolves and a non-Git storage substrate is decided. A fixture built against this schema must use a structurally-described placeholder or null, never a realistic-looking phone number."
+    },
+    "source": {
+      "type": "string",
+      "minLength": 1,
+      "description": "A structural description of how this lead originated (e.g. which intake channel). This schema does not enumerate a closed list of channels because none has been confirmed by the Project Owner yet; a future phase may narrow this to an enum once intake channels are decided. Not itself expected to be personal data, and must not be used to smuggle an identifying detail that belongs in `contact_name`, `email`, or `phone` instead."
+    },
+    "consent_status": {
+      "type": "string",
+      "enum": ["UNKNOWN", "GRANTED", "DECLINED", "WITHDRAWN"],
+      "description": "A classification of this lead's consent status, recorded for lead-routing purposes only. This field records the classification; it does not itself capture, verify, or enforce consent — whether consent must be obtained before outreach, how it is captured, and how an opt-out is honored are owned entirely by MESSAGING_POLICY.md (ACT-S04: sending a business-initiated message to a recipient with no recorded opt-in is DENY; ACT-S05: sending to a recipient who has opted out is DENY), not restated here (DATA_RETENTION_POLICY.md §6 boundary). UNKNOWN: no consent determination has been recorded. GRANTED: the lead is recorded as having consented. DECLINED: the lead is recorded as having declined. WITHDRAWN: consent was previously granted and has since been withdrawn. This schema defines no expiry state and no retention period for how long a GRANTED classification remains valid — both are UNRESOLVED, blocked on Q-009 (D-047: no number invented)."
+    }
+  }
+}

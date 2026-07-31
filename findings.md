@@ -2,6 +2,31 @@
 
 Running log of material findings across phases. Newest phase first.
 
+## Phase 04 — Data Contracts and State Model (2026-07-31)
+
+### F-04-01 — First third-party Python dependency introduced (`jsonschema`)
+Every prior `tools/` script was deliberately dependency-free ("no third-party packages are required by any script in this directory — deliberately, so they run with no install step," `tools/README.md`). Phase 04's own pass condition — "Schemas validate fixtures" — cannot be satisfied with real evidence by a hand-written validator without either reimplementing JSON Schema 2020-12 (infeasible and itself unverifiable) or installing a real validator. `pip install jsonschema` was run (`jsonschema` 4.26.0, plus its four transitive dependencies), disclosed here and in `tools/README.md` rather than silently added. No account, credential, or paid service was involved — a local, free, standard Python package install. `tools/schema_validate.py` and its `--selftest` red-mutation mode depend on it.
+
+### F-04-02 — A specialist found and fixed a real bug in its own draft before handoff
+While building `schemas/approval.schema.json`'s `allOf` conditionals encoding `APPROVAL_POLICY.md` §2's transition table, the Workflow State Designer's first draft required `requested_by_role = PHASE_OWNER` for every non-`DRAFT` status — which wrongly rejected the valid edge `DRAFT → WITHDRAWN` (withdrawing before ever submitting, which does not require a prior `submit`). Caught by the specialist's own targeted valid/invalid record testing before handoff, not by a later reviewer. Recorded because it is a small, concrete instance of exactly the discipline `F-01-04` asks for: run the check, including the edge case, before trusting the green result.
+
+### F-04-03 — No entity schema exists for `GC-08` (spending) or `GC-09` (paid advertising)
+`schemas/approval.schema.json`'s `entity_type` enum covers the seven entity schemas this phase built (`product`, `brand`, `content`, `campaign`, `experiment`, `alert`, `lead`) plus `null`, because no dedicated "spend request" or "ad request" entity exists among Phase 04's required deliverables. An approval record for `GC-08`/`GC-09` is therefore representable (`gated_category` covers all nine categories; `entity_type`/`entity_id` are nullable) but has no linked entity of its own to reference. Not a defect in this phase's deliverable list — `MASTER_PLAN.md` does not assign a spend/ad-request schema to Phase 04 or, on inspection, to any later phase either. Flagged for whichever future phase first needs to represent a spend or paid-advertising request as a first-class record (candidates: Phase 22, "Budget, Scaling, and Paid Growth Guardrails").
+
+### F-04-04 — `tools/idcheck.py`'s missing-path count was under-reported in this phase's own first pass; corrected after independent review
+The first run against this phase's core deliverables (before `CLAUDE.md`, `findings.md`, `progress.md`, and `agent_runs/phase-04/REVIEW_REPORT.md` were included in the target list) reported 5 missing-path lines and this entry originally named only 2 of them. The Independent Reviewer re-ran `tools/idcheck.py` against the *full* set of files this phase actually touched and correctly found 18 raw lines / 6 distinct unique paths (`REVIEW_REPORT.md` § 2.4, Finding H-2). All six are pre-existing, none is newly dangling because of this phase's work, and each is independently explained elsewhere in this project's own history:
+
+- `.claude/settings.local.json` — machine-local, deliberately git-ignored (`D-032`), never expected to exist in a fresh checkout.
+- `.vscode/extensions.json` — a `.gitignore` negation rule (`!.vscode/extensions.json`) for a file that does not exist yet; already disclosed as such in `findings.md`'s own Phase 00 section (the "wrongly ignored" correction).
+- `redtest_tmp.md` — a temporary file the Phase 02 owner created and deleted twice (`F-02-07`); the citation is of a file that was deliberately removed, not one that should exist and doesn't.
+- `ACTION_LEDGER.md` and `agent-atlas-growth-department_build-package_draft.zip` — pre-existing gaps predating Phase 04 (originally, and still, the two named here).
+- `agent_runs/phase-04/PHASE_GATE_REPORT.md` — this run's own forward reference to a file written at the very end of this phase (present once §"Gate decision" below is written).
+
+**Corrected here rather than only in the review report**, per this project's own rule that a checker's reported result must match its actual output (`CLAUDE.md` §6). `progress.md`'s Phase 04 section is corrected in the same pass.
+
+### F-04-05 — An earlier, unrelated `CLAUDE.md` edit was not disclosed against this phase's file-ownership table
+Before Phase 04 began, this same session performed a separate `/init`-triggered addition to `CLAUDE.md` (a new §14, "Verification commands," pointing to `tools/README.md`) at the user's explicit request, predating this phase's `task_plan.md` and kickoff. `CLAUDE.md` was correctly left off Phase 04's "File ownership" table because Phase 04 itself never intended to touch it — but the edit sat in the same working tree, uncommitted, and nothing in this phase's own audit trail said so, which the Independent Reviewer correctly flagged as indistinguishable from an undisclosed in-phase write (`REVIEW_REPORT.md` Finding H-1, citing `CLAUDE.md` §7 / `F-00-09`'s precedent that this exact class of defect "had to be disclosed"). Recorded now, after the fact, which is the correct order of operations but later than it should have been — the disclosure should have been made the moment Phase 04's own task_plan.md was written, not after an independent reviewer found the gap.
+
 ## Phase 03 — Governance, Security, Approval, and Autonomy Policies (2026-07-30)
 
 ### F-03-02 — `tools/blast_radius_check.py` (`CSK-01`) found real staleness on its first run, including one item outside Phase 03's authority to fix

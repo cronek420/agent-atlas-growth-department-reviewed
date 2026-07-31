@@ -1,0 +1,32 @@
+[
+  {
+    "id": "eb87da61-e1da-42d4-812c-4041432ce091",
+    "schema_version": "1.0.0",
+    "idempotency_key": "fixture-lead-1-create",
+    "status": "NEW",
+    "version": 1,
+    "created_at": "2026-07-31T09:00:00Z",
+    "updated_at": "2026-07-31T09:00:00Z",
+    "created_by_role": "RUNTIME_AGENT",
+    "contact_name": "fixture-contact-name-1",
+    "email": "fixture-lead-email-1@example.invalid",
+    "phone": null,
+    "source": "fixture-lead-source-1: a structural placeholder for an intake channel.",
+    "consent_status": "UNKNOWN"
+  },
+  {
+    "id": "f0dc45f5-07c6-474e-a294-97f81bbe86b0",
+    "schema_version": "1.0.0",
+    "idempotency_key": "fixture-lead-2-create",
+    "status": "QUALIFIED",
+    "version": 3,
+    "created_at": "2026-07-27T09:00:00Z",
+    "updated_at": "2026-07-30T09:00:00Z",
+    "created_by_role": "RUNTIME_AGENT",
+    "contact_name": "fixture-contact-name-2",
+    "email": "fixture-lead-email-2@example.invalid",
+    "phone": "fixture-phone-placeholder-2",
+    "source": "fixture-lead-source-2: a structural placeholder for an intake channel.",
+    "consent_status": "GRANTED"
+  }
+]

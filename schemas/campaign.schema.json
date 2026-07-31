@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rdbc.internal/schemas/campaign.schema.json",
+  "title": "Campaign",
+  "description": "A grouping of content, product references, and timing for a coordinated marketing push for Rough Draft Builders Club (RDBC). This is a schema *contract* only (architecture/DATA_CONTRACTS.md §8); no runtime enforces it yet (src/ does not exist before Phase 16). `product_ids`/`content_ids` are plain `format: uuid` reference fields with no runtime referential-integrity enforcement — no adapter or database exists yet to check that a referenced id actually resolves to a real product or content record (architecture/DATA_CONTRACTS.md §7, no writer role is granted for real entity records today). `approval_id` links this record to a campaign-level approval, distinct from and in addition to any approval each individual linked content item carries on its own `content.schema.json` record — see this schema's `approval_id` property description for the reasoning. See architecture/STATE_MACHINE.md for this entity's documented lifecycle transitions between `status` values.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "schema_version",
+    "idempotency_key",
+    "status",
+    "version",
+    "created_at",
+    "updated_at",
+    "created_by_role",
+    "name",
+    "description",
+    "approval_id",
+    "product_ids",
+    "content_ids",
+    "planned_start_at",
+    "planned_end_at"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Server-assigned identity. Never client-supplied, never reused. Shared envelope field, architecture/DATA_CONTRACTS.md §2.1."
+    },
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "The exact semver version of campaign.schema.json this record was written against. architecture/DATA_CONTRACTS.md §2.1, §3."
+    },
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Caller-chosen deduplication key; a create request whose idempotency_key matches an existing campaign record returns the existing record rather than creating a duplicate. architecture/DATA_CONTRACTS.md §2.1, §4."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["DRAFT", "PLANNED", "ACTIVE", "PAUSED", "COMPLETED", "ARCHIVED"],
+      "description": "This campaign's own lifecycle status — distinct from the linked approval record's status (`approval_id` below; architecture/DATA_CONTRACTS.md §6). Enum values and reasoning are this schema's own design choice (Data Architect, Phase 04); transitions between them are documented separately in architecture/STATE_MACHINE.md, which cites this exact enum. DRAFT: the campaign concept and its grouping of content/products/timing are being assembled and have not been finalized. PLANNED: the campaign's scope is finalized and, where applicable, its approval has been requested or granted, but its planned start has not yet arrived. ACTIVE: the campaign is currently running. PAUSED: the campaign was active and has been temporarily halted without being completed — distinct from ARCHIVED, which is a terminal retirement. COMPLETED: the campaign ran its planned course and concluded normally. ARCHIVED: the campaign is retired from active consideration, whether it completed, was paused indefinitely, or never left DRAFT/PLANNED."
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Optimistic-concurrency counter, starts at 1. architecture/DATA_CONTRACTS.md §2.1."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 / RFC 3339. Set once, never mutated. architecture/DATA_CONTRACTS.md §2.1."
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 / RFC 3339. Set on every accepted mutation; must be >= created_at. architecture/DATA_CONTRACTS.md §2.1."
+    },
+    "created_by_role": {
+      "type": "string",
+      "enum": [
+        "PROJECT_OWNER",
+        "PHASE_OWNER",
+        "SPECIALIST",
+        "INDEPENDENT_REVIEWER",
+        "GOVERNANCE_AUDITOR",
+        "RUNTIME_AGENT"
+      ],
+      "description": "Which role created this record — a closed role token from policy/action_registry.json's `roles` array, never a person's name or an invented role. architecture/DATA_CONTRACTS.md §2.1."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "A short structural label for this campaign — no example value here resembles a real RDBC campaign name (architecture/DATA_CONTRACTS.md §1's data-minimisation rule, extended project-wide)."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "description": "A structural description of what this campaign is intended to accomplish. Any external-facing statement this text implies (a claim, a discount, a controversial-topic position) is itself subject to the corresponding gated category (CLAUDE.md §4) before publication, independent of this campaign record existing."
+    },
+    "approval_id": {
+      "type": ["string", "null"],
+      "format": "uuid",
+      "description": "References the approval record (APPROVAL_POLICY.md §2; schemas/approval.schema.json) governing this campaign as a whole, if any request has been submitted. Null until a campaign-level approval request exists. Campaign-level approval is a deliberate design choice, kept separate from each linked content item's own `approval_id` on `content.schema.json`: a campaign can itself constitute a coordinated action requiring sign-off distinct from any single piece of content within it — for example, a campaign that bundles a discount (GC-03) or commits to a timed public push touching a controversial topic (GC-07) is a decision at the campaign level, not fully captured by approving its individual content pieces one at a time. This field does not substitute for, and is not substituted by, any individual content item's own approval_id."
+    },
+    "product_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "description": "The products this campaign concerns, referenced by id. Plain reference list with no runtime referential-integrity enforcement (architecture/DATA_CONTRACTS.md §7) — nothing checks that a listed id resolves to a real product.schema.json record. May be an empty array, e.g. while the campaign is still in DRAFT and its product scope is not yet decided."
+    },
+    "content_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "description": "The content items grouped under this campaign, referenced by id. Plain reference list with no runtime referential-integrity enforcement (architecture/DATA_CONTRACTS.md §7) — nothing checks that a listed id resolves to a real content.schema.json record. May be an empty array, e.g. while the campaign is still in DRAFT and no content has been drafted for it yet."
+    },
+    "planned_start_at": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "The campaign's intended start date-time, ISO 8601 / RFC 3339. Null until a start has been planned. Structural only — this schema imposes no minimum lead time, staleness window, or other numeric business rule around this value (D-047: no numeric threshold is invented)."
+    },
+    "planned_end_at": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "The campaign's intended end date-time, ISO 8601 / RFC 3339. Null until an end has been planned, or for a campaign with no defined end. Structural only — this schema imposes no minimum/maximum duration or other numeric business rule around this value (D-047: no numeric threshold is invented)."
+    }
+  }
+}

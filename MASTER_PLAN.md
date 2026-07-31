@@ -66,7 +66,7 @@ summarized tersely. Blocking questions are the open questions from
 | 01 | Workspace, Repository, and Project Memory | **PASS (owner, 2026-07-29)** | `CLAUDE.md`, `README.md`, `MASTER_PLAN.md`, `task_plan.md`, `findings.md`, `progress.md`, `DECISIONS.md`, `.gitignore`, `.env.example`, `docs/PROJECT_BOUNDARIES.md` | — |
 | 02 | Capability Registry and Skill Foundation | **CONDITIONAL PASS (owner, 2026-07-29)** — review completed (21 findings, rubric 3.75); **PR #1 merged 2026-07-30**, closing the Critical finding; **four High/Medium findings remain unremediated** (`R-24`, still `OPEN`) | `CAPABILITY_REGISTRY.md`, `SKILL_INSTALLATION_PLAN.md`, `CONNECTOR_ACTIVATION_PLAN.md`, `CUSTOM_SKILL_BACKLOG.md`, `SKILL_SECURITY_POLICY.md`, `SKILL_TEST_PLAN.md` — all six delivered | — (opened `Q-012`–`Q-017`; none blocked this gate) |
 | 03 | Governance, Security, Approval, and Autonomy Policies | **IN PROGRESS (2026-07-30)** — run `phase-03-2026-07-30-b`; a first attempt (`-a`) was discarded uncommitted after being built on a pre-merge branch (`F-03-01`) | `SECURITY_POLICY.md`, `APPROVAL_POLICY.md`, `AUTONOMY_POLICY.md`, `BUDGET_POLICY.md`, `PUBLISHING_POLICY.md`, `MESSAGING_POLICY.md`, `DATA_RETENTION_POLICY.md`, `AGENT_PERMISSION_MATRIX.md` | `Q-008`, `Q-017` (resolved by `D-041`) |
-| 04 | Data Contracts and State Model | NOT STARTED | `schemas/` — product, brand, content, campaign, approval, experiment, lead, alert; `architecture/STATE_MACHINE.md` | `Q-009` |
+| 04 | Data Contracts and State Model | **PASS (owner, 2026-07-31)** — run `phase-04-2026-07-31-a`; all 8 schemas + `architecture/STATE_MACHINE.md` + `architecture/DATA_CONTRACTS.md` written, `tools/schema_validate.py` 8/8 schemas × 20/20 fixtures pass, 5/5 red mutations caught; independent review's 8 findings (2 High, 5 Medium/Low) all fixed before the gate report | `schemas/` — product, brand, content, campaign, approval, experiment, lead, alert; `architecture/STATE_MACHINE.md`, `architecture/DATA_CONTRACTS.md` | `Q-009` (unresolved, does not block; shapes `lead.schema.json` only) |
 | 05 | Google Drive Living-Document Control Center | NOT STARTED | `architecture/DRIVE_CONTROL_CENTER.md`, `templates/DRIVE_FOLDER_MAP.md`, `templates/SHEET_SCHEMAS.md`, `templates/DOC_TEMPLATES.md`, `schemas/managed-file.schema.json`, `runbooks/DRIVE_SYNC_RECOVERY.md` | **`Q-004` — `BLOCKED`** |
 | 06 | Product and Company Onboarding | NOT STARTED | `product/` — `COMPANY_PROFILE.md`, `PRODUCT_PROFILE.md`, `OFFER_CATALOG.md`, `APPROVED_CLAIMS.md`, `EVIDENCE_REGISTER.md`, `FAQ_AND_OBJECTIONS.md` | `Q-007` |
 | 07 | Brand and Creative System | NOT STARTED | `brand/` — `BRAND_BIBLE.md`, `VOICE_AND_TONE.md`, `VISUAL_SYSTEM.md`, `APPROVED_LANGUAGE.md`, `PROHIBITED_LANGUAGE.md`, `ASSET_REGISTER.md` | `Q-006` |
@@ -77,9 +77,9 @@ summarized tersely. Blocking questions are the open questions from
 | 12 | Content Strategy and Editorial System | NOT STARTED | `content/` — `CONTENT_PILLARS.md`, `EDITORIAL_CALENDAR_SCHEMA.md`, `CAMPAIGN_TAXONOMY.md`, `CONTENT_BRIEF_TEMPLATE.md`, `REPURPOSING_MAP.md` | `Q-001`, `Q-002` |
 | 13 | Content Production Agents | NOT STARTED | `directives/content-agents/`, `schemas/content-asset.schema.json`, `templates/content/`, `tests/content/` | `Q-002`, `Q-006` |
 | 14 | Copy Testing and Creative Experiment Design | NOT STARTED | `experiments/COPY_TESTING_SOP.md`, `experiments/SCORING_RUBRIC.md`, `experiments/STOPPING_RULES.md`, `schemas/copy-test.schema.json`, `tests/copy-testing/` | — |
-| 15 | Approval Queue and Human Review Workflow | NOT STARTED | `architecture/APPROVAL_WORKFLOW.md`, `schemas/approval.schema.json`, `templates/APPROVAL_QUEUE.md`, `tests/approval/`, `runbooks/APPROVAL_RECOVERY.md` | **`Q-004` — `BLOCKED`**, `Q-008` |
+| 15 | Approval Queue and Human Review Workflow | NOT STARTED | `architecture/APPROVAL_WORKFLOW.md`, `templates/APPROVAL_QUEUE.md`, `tests/approval/`, `runbooks/APPROVAL_RECOVERY.md` — **`schemas/approval.schema.json` already delivered by Phase 04 (2026-07-31); Phase 15 builds the queue/workflow that operates on it, not a second copy of the schema** | **`Q-004` — `BLOCKED`**, `Q-008` |
 | 16 | Publishing and Scheduling Adapters | NOT STARTED | `architecture/PUBLISHING_ADAPTERS.md`, `src/adapters/`, `tests/adapters/`, `runbooks/PUBLISHING_FAILURES.md` — **also owns establishing the Google Cloud scheduled-execution host (`D-051`, resolves `Q-014`)**; spending on it is separately gated | `Q-002`, `Q-005` |
-| 17 | Community, Messaging, and Lead Routing | NOT STARTED | `architecture/COMMUNITY_WORKFLOW.md`, `schemas/message.schema.json`, `schemas/lead.schema.json`, `community/RESPONSE_LIBRARY.md`, `tests/community/` | `Q-009` |
+| 17 | Community, Messaging, and Lead Routing | NOT STARTED | `architecture/COMMUNITY_WORKFLOW.md`, `schemas/message.schema.json`, `community/RESPONSE_LIBRARY.md`, `tests/community/` — **`schemas/lead.schema.json` already delivered by Phase 04 (2026-07-31) as a structural contract only; real records remain `DENY` until `Q-009` resolves (`DATA_RETENTION_POLICY.md` §2.4). Phase 17 builds the routing workflow, not a second copy of the schema** | `Q-009` |
 | 18 | Analytics, Attribution, and Revenue Data | NOT STARTED | `analytics/METRIC_DICTIONARY.md`, `analytics/ATTRIBUTION_POLICY.md`, `analytics/MANUAL_ENTRY_TEMPLATE.md`, `schemas/metric.schema.json`, `tests/analytics/` | `Q-003`, `Q-009` |
 | 19 | Weekly Execution Checklist and Executive Reporting | NOT STARTED | `operations/WEEKLY_RUNBOOK.md`, `operations/WEEKLY_CHECKLIST_TEMPLATE.md`, `operations/EXECUTIVE_SUMMARY_TEMPLATE.md`, `schemas/weekly-run.schema.json`, `tests/weekly-operations/` | `Q-001`, `Q-003`, **`Q-004` — `BLOCKED`** |
 | 20 | Organizational Memory and Learning Loop | NOT STARTED | `architecture/MEMORY_SYSTEM.md`, `schemas/memory-entry.schema.json`, `knowledge/WINNING_PATTERNS.md`, `knowledge/FAILED_PATTERNS.md`, `tests/memory/` | — |
@@ -110,14 +110,14 @@ questions remain open; `Q-010` and `Q-011` were resolved by the owner 2026-07-28
 | `Q-005` | Existing social account status | UNRESOLVED | 10, 11, 16 |
 | `Q-006` | Brand asset source location | UNRESOLVED | 07, 13 |
 | `Q-007` | Which Rough-Draft-Builders-Club files are approved fact sources | UNRESOLVED — **may block Phase 06's start, not just its content** (see note) | 06 |
-| `Q-008` | Backup approver / accept single-approver SPOF | UNRESOLVED | 03, 15, 21 |
-| `Q-009` | Data-privacy handling for lead/contact data | UNRESOLVED | 04, 17, 18 |
+| `Q-008` | Backup approver / accept single-approver SPOF | ✅ RESOLVED 2026-07-30 (`D-050`) — single-approver structure stands | 03, 15, 21 |
+| `Q-009` | Data-privacy handling for lead/contact data | UNRESOLVED — shapes but does not block Phase 04's `lead.schema.json` (structural only) | 04, 17, 18 |
 | `Q-012` | Which connected MCP connectors are actually authorized | UNRESOLVED | Accuracy of `docs/PROJECT_BOUNDARIES.md` §3; `R-21` |
 | `Q-013` | Change control over the machine-local capability surface | UNRESOLVED | Validity of `CAPABILITY_REGISTRY.md` at every later gate; `R-20` |
-| **`Q-014`** | **Which phase owns the scheduled-execution host** | UNRESOLVED — **most urgent of the six**; leaving it open silently reverses the owner-confirmed `D-019a` | **19**, plus the scheduled halves of 16, 20, 21, 24 |
+| `Q-014` | Which phase owns the scheduled-execution host | ✅ RESOLVED 2026-07-30 (`D-051`) — Phase 16 | 19, plus the scheduled halves of 16, 20, 21, 24 |
 | `Q-015` | May the system send notifications to the Project Owner | UNRESOLVED | 19 (delivery), 21 (alerting) |
-| `Q-016` | Where Phase 04's fixtures live | UNRESOLVED | 04 |
-| `Q-017` | What Phase 03's "Policy conflicts tested" requires | UNRESOLVED | 03 |
+| `Q-016` | Where Phase 04's fixtures live | ✅ RESOLVED 2026-07-31 (`D-052`) — `schemas/fixtures/` | 04 |
+| `Q-017` | What Phase 03's "Policy conflicts tested" requires | ✅ RESOLVED 2026-07-30 (`D-041`) | 03 |
 
 **`Q-004` requires owner action before Phase 05 can execute** against a real
 Drive folder; design work for Phase 05 can proceed, folder creation cannot.

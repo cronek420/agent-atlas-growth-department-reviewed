@@ -1,140 +1,168 @@
 # Task Plan
 
-Working task graph for the current phase. Rewritten at the start of each phase by that phase's owner; completed phases are summarized at the bottom rather than deleted.
+Working task graph for the current phase. Rewritten at the start of each phase by that phase's
+owner; completed phases are summarized at the bottom rather than deleted.
 
-**Run ID:** `phase-03-2026-07-30-b`
-**Phase:** 03 — Governance, Security, Approval, and Autonomy Policies
-**Phase owner:** Atlas Orchestrator (Phase 03)
-**Date:** 2026-07-30
-
-## Why `-b`: this phase restarted mid-run
-
-A first attempt (`phase-03-2026-07-30-a`) was built entirely on `main`/this branch at `de2c16c` — **before** discovering that a complete, real Phase 02 sat unmerged on `claude/phase-02-capability-registry-c04753` (PR #1, opened 2026-07-29, never merged). That attempt invented `D-036`–`D-042`, which collided with the **real** `D-036`–`D-040` already recorded on the unmerged branch, and its central finding ("Phase 02 was never executed") was true of the stale branch and false of the project.
-
-Caught by the Independent Reviewer during the first attempt's own review pass, verified independently (`git log --all`, `gh pr view 1`, `git merge-base`), escalated to the Project Owner, who chose: **merge PR #1, then redo Phase 03 from scratch.** PR #1 merged 2026-07-30 (commit `acabca8`); this branch was reset to the merged `main`; the first attempt's uncommitted draft (8 policy documents, `policy/`, `tools/`) was discarded, since it had never been committed. Nothing shared or pushed was lost. Full account: this phase's gate report § "What went wrong before this phase started."
+**Run ID:** `phase-04-2026-07-31-a`
+**Phase:** 04 — Data Contracts and State Model
+**Phase owner:** Atlas Orchestrator (Phase 04)
+**Date:** 2026-07-31
 
 ## Objective
 
-Create deterministic rules governing what agents may read, write, publish, send, spend, or escalate.
+Define versioned schemas and deterministic lifecycle states before dependent code is built.
 
 ## Prerequisite status
 
 | Item | State |
 |---|---|
-| Phase 02 gate | **CONDITIONAL PASS**, recorded by the Project Owner 2026-07-29, in `CURRENT_PHASE.md` |
-| Phase 02 deliverables | **All six exist and are real**: `CAPABILITY_REGISTRY.md` (141 capability rows), `SKILL_SECURITY_POLICY.md`, `CONNECTOR_ACTIVATION_PLAN.md`, `SKILL_INSTALLATION_PLAN.md`, `CUSTOM_SKILL_BACKLOG.md`, `SKILL_TEST_PLAN.md` |
-| Phase 02 independent review | **Completed** (after a first attempt hit an account spend limit) — 21 findings (1 Critical, 8 High, 8 Medium, 4 Low), rubric 3.75 (below `D-028` threshold) |
-| **`R-24` — outstanding** | The Critical finding (merge PR #1) is now resolved by this phase's own reconciliation. **Four High/Medium findings remain unremediated per the owner's CURRENT_PHASE.md record.** This is Phase 02's debt, not Phase 03's to fix — noted, not silently absorbed |
-| Phase 01 gate | PASS, owner, 2026-07-29, no conditions |
-| Phase 00 gate | PASS, owner, 2026-07-28, no conditions |
+| Phase 03 gate | **PASS**, recorded by the Project Owner 2026-07-30, in `CURRENT_PHASE.md` — an override of the gate report's own CONDITIONAL PASS recommendation, the owner's prerogative under `D-007` |
+| Phase 03 deliverables | All 8 policy documents, `policy/POLICY_CONTRACT.md`, `policy/action_registry.json`, `AGENT_PERMISSION_MATRIX.md`, `tools/policy_check.py` (13/13), `tools/policy_check_selftest.py` (12/12) |
+| `R-24` — outstanding | Four unremediated High/Medium findings from Phase 02's own independent review, carried forward, **not this phase's to close** (`CURRENT_PHASE.md`) |
+| Phase 02 / 01 / 00 gates | PASS / PASS / PASS, no conditions |
+| Git | Local repository initialized this session (`git init -b main`), single baseline commit, private remote `cronek420/agent-atlas-growth-department-reviewed` attached and pushed |
 
-## What this phase inherits from the real Phase 02 — read before drafting anything
+## Blocking question resolved before drafting
 
-These are direct, load-bearing instructions left in `CURRENT_PHASE.md` by the Phase 02 Owner for whoever runs Phase 03:
+**`Q-016`** (where do Phase 04's fixtures live) was left as this phase's own call
+(`OPEN_QUESTIONS.md`, `CURRENT_PHASE.md`). Resolved as `D-052`:
+`schemas/fixtures/<entity>.fixture.json`, colocated with the schema each validates. Full
+reasoning: `architecture/DATA_CONTRACTS.md` §1.
 
-1. **`SECURITY_POLICY.md` must cover credential-free external access, not only secrets** (`F-02-03`, `R-21`). Five borrowed-authority classes exist in the observed capability surface — the operator's logged-in browser session, the operator's Claude account, connector grants held in that account, harness-mediated network egress, and plugin-held credentials. None of them requires a value in `.env` or Secret Manager, so a security policy that only governs credentials this project holds misses the exposure that actually matters. **Governing sentence: this project's controls govern the credentials it holds; its exposure is governed by the authority it borrows.**
-2. **Boundaries must be expressed in terms of what may be *known*, not which door content came through** (`F-02-02`, `R-23`). A path-based rule (`docs/PROJECT_BOUNDARIES.md` §1/§2, pre-Phase-02) is satisfied by a capability that returns Rough-Draft-Builders-Club content without taking a path argument — same content, no path, rule defeated by construction. Already partially narrowed in `docs/PROJECT_BOUNDARIES.md` §2/§3 by the Phase 02 Owner (a fail-closed narrowing, per `docs/PROJECT_BOUNDARIES.md` §7.4); Phase 03's policies must not silently re-introduce a path-only formulation.
-3. **Tool-grant lists are not enforcement** (`F-02-04`). No subagent type is genuinely read-only; `Bash` defeats any "read-only" grant; `ToolSearch` availability is decidable but not itself enforced, because `D-003`'s deterministic-enforcement requirement has no implementation anywhere in this project yet. `AGENT_PERMISSION_MATRIX.md` must not claim to be an enforced boundary — it is a documented least-privilege *intent*, same honesty standard as every other Phase 03 deliverable (`PROPOSED`/`SCAFFOLDED`, never `IMPLEMENTED`).
-4. **Trust boundary is drawn at authorship, not retrieval** (`F-02-05`, `CLAUDE.md` §11). A skill or tool description loaded into context before any task begins is untrusted third-party text, in a *stronger* trust position than fetched content because it arrived unbidden. `SECURITY_POLICY.md`'s untrusted-content section must cover this, not only scraped/fetched content.
-5. **`Q-017` — "what does 'policy conflicts tested' require" — is explicitly left as Phase 03's own call**, not blocking. This phase answers it (see § "Resolving Q-017" below) rather than leaving it open again.
-6. **`CUSTOM_SKILL_BACKLOG.md` assigns Phase 03 the first custom skill, `CSK-01 blast-radius-check`** — a deterministic tool that enumerates prior-phase files a phase's own changes may have falsified, before the gate report is drafted. Full contract at `CUSTOM_SKILL_BACKLOG.md` §"CSK-01". This phase builds it (see Task graph).
-7. **`SKILL_SECURITY_POLICY.md` does not discharge `D-027`** — it governs which *capabilities* may be used; `SECURITY_POLICY.md` governs credentials, incident response, and access control generally. Cross-reference, never restate or duplicate.
-8. **`CAPABILITY_REGISTRY.md`'s three axes** (maturity ladder `D-010`; implementation class `CLAUDE.md` §3; use-disposition `PERMITTED`/`RESTRICTED`/`PROHIBITED`/`UNRESOLVED`, `D-037`) are a different question from what `AGENT_PERMISSION_MATRIX.md` answers (which **role** may take which **action**). They compose — a capability being `PERMITTED` in the registry does not by itself grant any role permission to use it for a specific action; `AGENT_PERMISSION_MATRIX.md` still gates that. Do not merge the two axes.
-9. **Do not reopen or re-litigate Phase 02's gate, its 21 review findings, or `R-24`.** That is the Project Owner's and (if resumed) the Phase 02 Owner's business. Phase 03 notes the inherited risk and moves on.
+## Blocking question NOT resolved, and why that's correct
 
-## Resolving Q-017 — "what does Phase 03's 'Policy conflicts tested' pass condition require?"
+**`Q-009`** (data-privacy handling for lead/contact data) is `UNRESOLVED` and shapes this phase
+(`MASTER_PLAN.md` row 04) but does not block it — it is not `BLOCKED` like `Q-004`, and
+`OPEN_QUESTIONS.md`'s own text offers the phase owner an option to propose a default policy for
+the owner's approval. **This phase does not exercise that option.** Proposing a retention period,
+jurisdiction, or storage substrate would require inventing a number or a legal fact this project
+has no basis for (`D-047`, `D-008`) — exactly the failure mode `DATA_RETENTION_POLICY.md` §8
+already refused. Instead, `schemas/lead.schema.json` is built as a **structural data contract
+only**: it defines field shapes so Phase 17 has a target, carries an explicit inline notice that
+instantiating a real record is `DENY` (`ACT-W10`) until `Q-009` resolves, and its fixture uses
+placeholder-only values per `DATA_RETENTION_POLICY.md` §7 (extended to fixtures in
+`architecture/DATA_CONTRACTS.md` §1). `Q-009` is exactly as open after this phase as before it.
 
-**Decision (this phase, recorded as `D-041`):** "Policy conflicts tested" means two distinct, both-required checks:
+## What this phase inherits — read before drafting anything
 
-1. **Structural conflicts within `policy/action_registry.json`** — two rows granting different outcomes to the same (role, verb, resource, statement) — caught mechanically (`tools/policy_check.py`, inherited design from the first attempt, since this part owed nothing to the false premise).
-2. **Cross-document prose conflicts** — a policy document's prose describing an outcome that contradicts the registry, or contradicting a sibling policy document. This is **not** fully mechanically checkable (natural-language semantics), so it is tested by an explicit, itemized cross-read performed by the Independent Reviewer and recorded in `REVIEW_REPORT.md`, with the mechanical checker providing an ID/outcome cross-reference as a starting point, not a substitute.
-
-Both must be exercised and their results recorded before the phase can claim this pass condition met.
+1. **`APPROVAL_POLICY.md` §2 already defines the approval state machine** (10 states, `DRAFT`
+   initial, six terminal states, four numbered invariants). `schemas/approval.schema.json` and
+   `architecture/STATE_MACHINE.md` transcribe it; neither invents a competing one
+   (`architecture/DATA_CONTRACTS.md` §6).
+2. **`policy/action_registry.json`'s six roles are the closed vocabulary** for any
+   "who created/acted on this record" field (`created_by_role`) — never a person's name or a
+   newly invented role.
+3. **Fail-closed is the house style** (`D-044` for actions, extended here to schema shape via
+   `additionalProperties: false` — `architecture/DATA_CONTRACTS.md` §2.2).
+4. **No number is invented** (`D-047`). Any numeric threshold this phase might want (retry
+   counts, staleness windows, retention periods) stays absent from the schemas unless it is
+   already fixed by a governing document; none of the eight schemas needs one to satisfy its pass
+   conditions, so none is added.
+5. **`DATA_RETENTION_POLICY.md` §2.4 governs `lead.schema.json` absolutely** — this phase changes
+   nothing about that file and does not attempt to.
+6. **A checker that reports success proves nothing until shown to fail** (`F-01-04`). Schema
+   validation this phase performs uses a real validator (Python `jsonschema`, installed this run
+   — no such package existed in the repository before) against real fixture files, with a
+   documented red-mutation demonstration, not a hand-inspection claim.
 
 ## Input classification
 
 | Input | Class | Note |
 |---|---|---|
-| 10 architecture rules; nine gated categories | `CONFIRMED` | `README.md`, `D-001`–`D-011` |
-| Human-checkpoint list | `CONFIRMED` | `user-guide/USER_INSTRUCTIONS.md` |
-| Filesystem / external-system / action / data / trust boundaries, **as narrowed by Phase 02** | `CONFIRMED` | `docs/PROJECT_BOUNDARIES.md` |
-| Secrets mechanics (`.env`, `.env.example`, Secret Manager) | `CONFIRMED` | Phase 01 |
-| Maturity ladder, use-disposition vocabulary, `NOT_PRODUCTION_FACING` sentinel | `CONFIRMED` | `D-010`, `D-037`, `D-038` |
-| `CAPABILITY_REGISTRY.md`'s 141-row snapshot | `CONFIRMED` (as a dated snapshot) | `D-039` — re-capture before relying on it later |
-| "Automate within the gates, never through them" | `CONFIRMED` | `D-019a` + `D-020`, owner-stated |
-| Organic-only, zero authorized spend | `CONFIRMED` (prohibition) / `INFERRED` (duration) | `D-016`, `D-016a`, `NG-001` |
-| Credential-free / borrowed-authority exposure exists and is unaddressed by prior controls | `CONFIRMED` | `F-02-03`, `R-21` |
-| Build-time agent roles | `CONFIRMED` | `CLAUDE.md` §7 |
-| **Backup approver / owner-unavailable behaviour** | `UNRESOLVED` | `Q-008` |
-| **Personal-data retention periods and jurisdiction** | `UNRESOLVED` | `Q-009` |
-| **All numeric thresholds** | `UNRESOLVED` | `D-021`, `NG-004`, `Q-003` |
-| Who owns the scheduled-execution host (Google Cloud) | `UNRESOLVED`, urgent per Phase 02 Owner | `Q-014` |
-| Which connected connectors are actually authorized | `UNRESOLVED` | `Q-012` |
-| Google Drive access | `BLOCKED` | `Q-004` — the project's only `BLOCKED` item |
+| Approval state machine (10 states, invariants) | `CONFIRMED` | `APPROVAL_POLICY.md` §2 |
+| Six-role vocabulary | `CONFIRMED` | `policy/action_registry.json` §`roles` |
+| Fail-closed default | `CONFIRMED` | `D-044` |
+| No invented numbers | `CONFIRMED` (prohibition) | `D-047` |
+| Personal-data collection is `DENY` today | `CONFIRMED` | `DATA_RETENTION_POLICY.md` §2.4, `ACT-W10` |
+| Fixture location | `CONFIRMED` (this phase's own decision) | `D-052` |
+| Shared envelope / versioning / idempotency / error shape | `CONFIRMED` (this phase's own decision) | `D-053` |
+| Numeric thresholds anywhere in a schema (retry counts, TTLs) | `UNRESOLVED` — none used | `D-047` |
+| `Q-009` jurisdiction, retention period, storage substrate | `UNRESOLVED`, not this phase's to resolve | `Q-009` |
 
-**Blocking questions for Phase 03:** none. `Q-008`, `Q-009`, `Q-012`, `Q-014` shape content but do not stop the phase from producing its deliverables.
+**Blocking questions for Phase 04: none.** `Q-009` shapes `lead.schema.json`'s content and
+operational status; it does not stop the phase from producing its deliverables.
 
 ## Task graph
 
 ```
-T0  Phase Owner: re-read real governing corpus post-merge, resolve Q-017 (D-041),
-    author policy/POLICY_CONTRACT.md + policy/action_registry.json
-    incorporating F-02-02/F-02-03/F-02-04/F-02-05 and real D-036–D-040
+T0  Phase Owner: read governing corpus, resolve Q-016 (D-052),
+    author architecture/DATA_CONTRACTS.md (shared envelope, versioning, idempotency,
+    error shape — D-053), install jsonschema validator
      │
      ▼
-T1  ┌─ Security Architect ............ SECURITY_POLICY.md (must cover F-02-03)
-    ├─ Policy Designer ............... APPROVAL_POLICY.md → AUTONOMY_POLICY.md → BUDGET_POLICY.md
-    ├─ Privacy Reviewer .............. DATA_RETENTION_POLICY.md
-    └─ Marketing Ops Reviewer ........ PUBLISHING_POLICY.md, MESSAGING_POLICY.md
-     │       (4 agents in parallel, each against the contract + real repo state only)
+T1  ┌─ Data Architect ......... product, brand, content, campaign schemas
+    └─ Analytics Engineer ..... experiment, alert, lead schemas (Q-009-aware)
+     │       (2 agents in parallel, each against DATA_CONTRACTS.md only —
+     │        genuinely independent: neither reads the other's assigned schemas)
      ▼
-T2  Phase Owner: tools/render_permission_matrix.py → AGENT_PERMISSION_MATRIX.md
+T2  Workflow State Designer: schemas/approval.schema.json (transcribes APPROVAL_POLICY.md §2)
+    + architecture/STATE_MACHINE.md (per-entity lifecycles for all 8 entities,
+    citing T1's actual field names — runs after T1, not parallel with it, F-00-07)
      ▼
-T3  Phase Owner: tools/policy_check.py (structural conflicts) + negative-control self-test
+T3  Schema QA Reviewer (Phase Owner, this run): schemas/fixtures/*.fixture.json (8 files) +
+    tools/schema_validate.py, run against every schema, red-mutation demonstrated
      ▼
-T4  Phase Owner: tools/blast_radius_check.py — build CSK-01 per its full contract
-    in CUSTOM_SKILL_BACKLOG.md, run it against this phase's own changes
+T4  Phase Owner: integrate — DECISIONS.md, OPEN_QUESTIONS.md (done at T0/T1 boundary for D-052),
+    findings.md, progress.md, CURRENT_PHASE.md, MASTER_PLAN.md row 04
      ▼
-T5  Independent Governance Auditor (fresh; authored nothing under audit)
+T5  Independent Reviewer (fresh; authored nothing under review)
      ▼
-T6  Independent Reviewer (fresh; authored nothing; prose conflict cross-read per Q-017)
-     ▼
-T7  Phase Owner: address findings, update registers per CSK-01's own output,
-    rubric score, PHASE_GATE_REPORT.md, STOP
+T6  Phase Owner: address findings, rubric score, PHASE_GATE_REPORT.md, STOP
 ```
+
+**Sequencing note (`F-00-07`):** T2 depends on T1's actual field choices (state-bearing field
+names in `content`, `campaign`, `experiment`) and is deliberately serialized after it, not run in
+parallel. T1's two specialists are genuinely independent of each other — neither is told the
+other's specific field names, only the shared contract both must follow.
 
 ## File ownership — one owner per file
 
 | File | Owner |
 |---|---|
-| `policy/POLICY_CONTRACT.md`, `policy/action_registry.json` | Phase 03 Owner |
-| `SECURITY_POLICY.md` | Security Architect |
-| `APPROVAL_POLICY.md`, `AUTONOMY_POLICY.md`, `BUDGET_POLICY.md` | Policy Designer |
-| `DATA_RETENTION_POLICY.md` | Privacy Reviewer |
-| `PUBLISHING_POLICY.md`, `MESSAGING_POLICY.md` | Marketing Operations Reviewer |
-| `AGENT_PERMISSION_MATRIX.md` (generated, never hand-edited) | Phase 03 Owner |
-| `tools/render_permission_matrix.py`, `tools/policy_check.py`, `tools/policy_check_selftest.py`, `tools/blast_radius_check.py` | Phase 03 Owner |
-| `agent_runs/phase-03/handoffs/*` | Each authoring agent, one file each |
-| `agent_runs/phase-03/GOVERNANCE_AUDIT_REPORT.md` | Independent Governance Auditor |
-| `agent_runs/phase-03/REVIEW_REPORT.md` | Independent Reviewer |
-| `DECISIONS.md`, `findings.md`, `progress.md`, `CURRENT_PHASE.md`, `MASTER_PLAN.md`, `OPEN_QUESTIONS.md`, `RISK_REGISTER.md`, `task_plan.md`, `docs/PROJECT_BOUNDARIES.md` (if narrowing needed) | Phase 03 Owner only |
-| `agent_runs/phase-03/PHASE_GATE_REPORT.md` | Phase 03 Owner |
+| `architecture/DATA_CONTRACTS.md` | Phase 04 Owner |
+| `schemas/product.schema.json`, `schemas/brand.schema.json`, `schemas/content.schema.json`, `schemas/campaign.schema.json` | Data Architect |
+| `schemas/experiment.schema.json`, `schemas/alert.schema.json`, `schemas/lead.schema.json` | Analytics Engineer |
+| `schemas/approval.schema.json`, `architecture/STATE_MACHINE.md` | Workflow State Designer |
+| `schemas/fixtures/*.fixture.json` (8 files), `tools/schema_validate.py` | Phase 04 Owner (Schema QA Reviewer role, same run) |
+| `agent_runs/phase-04/handoffs/*` | Each authoring agent, one file each |
+| `agent_runs/phase-04/REVIEW_REPORT.md` | Independent Reviewer |
+| `DECISIONS.md`, `OPEN_QUESTIONS.md`, `findings.md`, `progress.md`, `CURRENT_PHASE.md`, `MASTER_PLAN.md`, `task_plan.md` | Phase 04 Owner only |
+| `agent_runs/phase-04/PHASE_GATE_REPORT.md` | Phase 04 Owner |
 
 No specialist writes a register. Specialists propose in handoffs; the phase owner records.
 
 ## Validation plan
 
-Same core mechanical checks as designed in the first attempt (V-1..V-13; none of that design was false, only its premise about Phase 02), plus:
+- **V-1** — every `schemas/*.schema.json` file is syntactically valid JSON and a syntactically
+  valid JSON Schema (loads under `jsonschema.Draft202012Validator.check_schema`).
+- **V-2** — every fixture in `schemas/fixtures/*.fixture.json` validates against its
+  corresponding schema (`jsonschema.Draft202012Validator(schema).validate(record)` for every
+  record in the array) — the "Schemas validate fixtures" pass condition, with real command
+  output recorded.
+- **V-3** — red mutation: for at least one schema, a deliberately invalid fixture record (missing
+  required field / wrong type / unexpected `additionalProperties`) is shown to **fail**
+  validation, proving V-2 is not vacuously green (`F-01-04`).
+- **V-4** — every schema's `status` enum matches the corresponding entity's states in
+  `architecture/STATE_MACHINE.md` exactly (no schema drifting from its own state model).
+- **V-5** — `schemas/approval.schema.json`'s `status` enum is exactly the 10 states in
+  `APPROVAL_POLICY.md` §2, same order, no addition or omission.
+- **V-6** — every schema's envelope fields match `architecture/DATA_CONTRACTS.md` §2.1 exactly
+  (same seven names, same types).
+- **V-7** — `tools/idcheck.py` against every new/changed Markdown file — no dangling `D-`/`Q-`/
+  `R-`/`NG-`/`F-` citation, no dangling relative path.
+- **V-8** — secret/personal-data-shaped-placeholder scan across `schemas/fixtures/*.fixture.json`
+  — no realistic-looking name, email, or phone value anywhere (`architecture/DATA_CONTRACTS.md`
+  §1's extension of `DATA_RETENTION_POLICY.md` §7).
 
-- **V-16** — CSK-01 (`tools/blast_radius_check.py`) runs clean against this phase's own `changed_files` before the gate report, with `unreadable` empty and every candidate dispositioned.
-- **V-17** — Q-017 resolution itself: confirm both the structural check (V-5) and a documented prose cross-read exist and were exercised, not just one of the two.
+## Out of scope for Phase 04
 
-## Out of scope for Phase 03
-
-- Reopening Phase 02's gate, its 21 findings, or `R-24`.
-- Authoring anything belonging to Phase 04+.
-- Installing anything, connecting any external system, creating `.env`, obtaining any credential.
-- Beginning Phase 04 (`D-007`).
+- Reopening Phase 00–03's gates, decisions, or unremediated findings (`R-24`).
+- Building any enforcement code, adapter, or runtime for these schemas — `src/` does not exist
+  before Phase 16 (`MASTER_PLAN.md`).
+- Resolving `Q-009` itself, or proposing specific retention/jurisdiction values for it.
+- Installing anything beyond the one local, dependency-free-of-network-account validator package
+  needed to mechanically satisfy this phase's own pass condition.
+- Beginning Phase 05 (`D-007`).
 
 ## Completed phases
 
@@ -142,6 +170,6 @@ Same core mechanical checks as designed in the first attempt (V-1..V-13; none of
 
 **Phase 01 — Workspace, Repository, and Project Memory.** PASS (owner, 2026-07-29, unconditional, against a CONDITIONAL PASS recommendation). Rubric 4.17.
 
-**Phase 02 — Capability Registry and Skill Foundation.** CONDITIONAL PASS (owner, 2026-07-29). All six deliverables real; independent review completed with 21 findings (rubric 3.75); PR #1 merged 2026-07-30 during Phase 03's reconciliation. `R-24` remains open pending remediation of four High/Medium findings — not this phase's to close.
+**Phase 02 — Capability Registry and Skill Foundation.** CONDITIONAL PASS (owner, 2026-07-29). All six deliverables real; independent review completed with 21 findings (rubric 3.75); PR #1 merged 2026-07-30. `R-24` remains open, not this or any later phase's to close.
 
-**Phase 03 attempt `-a` (2026-07-30, superseded, never committed).** Built on a stale branch predating the Phase 02 merge; produced 8 policy documents, `policy/action_registry.json`, and a self-tested checker, all discarded when the false premise was discovered. No loss: nothing was committed or pushed. Full account in this phase's gate report.
+**Phase 03 — Governance, Security, Approval, and Autonomy Policies.** PASS (owner, 2026-07-30, an override of the gate report's CONDITIONAL PASS recommendation). All eight policy documents, `policy/POLICY_CONTRACT.md`, `policy/action_registry.json`, generated `AGENT_PERMISSION_MATRIX.md`; `tools/policy_check.py` 13/13, `tools/policy_check_selftest.py` 12/12. `Q-008`/`Q-014` resolved by owner delegation (`D-050`, `D-051`).
