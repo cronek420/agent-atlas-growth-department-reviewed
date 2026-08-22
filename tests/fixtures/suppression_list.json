@@ -1,0 +1,11 @@
+{
+  "domains": [
+    "competitor.example.com",
+    "donotcontact.example.com"
+  ],
+  "emails": [
+    "optout@acme.example.com",
+    "bounced@example.com",
+    "complaint@example.com"
+  ]
+}
