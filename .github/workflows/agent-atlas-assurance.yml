@@ -1,0 +1,35 @@
+name: Agent Atlas Assurance
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  deterministic-assurance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile deterministic controls
+        run: python -m compileall -q tools
+      - name: Policy regression checks
+        run: python tools/policy_check.py
+      - name: Policy negative controls
+        run: python tools/policy_check_selftest.py
+      - name: Decision and reference integrity
+        run: >-
+          python tools/idcheck.py .
+          CURRENT_PHASE.md MASTER_PLAN.md APPROVAL_POLICY.md AUTONOMY_POLICY.md
+          BUDGET_POLICY.md PUBLISHING_POLICY.md MESSAGING_POLICY.md DATA_RETENTION_POLICY.md
+      - name: Contract integrity
+        run: python tools/contractcheck.py CUSTOM_SKILL_BACKLOG.md SKILL_TEST_PLAN.md
+      - name: Registry integrity
+        run: python tools/regcheck.py CAPABILITY_REGISTRY.md
+      - name: Permission matrix reproducibility
+        run: python tools/render_permission_matrix.py --check
